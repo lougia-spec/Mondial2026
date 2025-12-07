@@ -1,4 +1,4 @@
-import streamlit
-import pandas
+import streamlit as st
+import pandas as pd
 import gspread
-import oauth2client
+from oauth2client.service_account import ServiceAccountCredentials
