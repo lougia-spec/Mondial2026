@@ -14,7 +14,7 @@ st.set_page_config(
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = True  
-DERNIERE_MAJ = "09/12/2025 à 10:00"
+DERNIERE_MAJ = "09/12/2025 à 11:00"
 # 👆 ---------------------------- 👆
 
 # --- CONNEXION GOOGLE SHEETS ---
@@ -41,7 +41,7 @@ def connect_to_gsheets():
             return None
     return None
 
-# --- LISTE DES 72 MATCHS (CORRIGÉE ET COMPLÈTE) ---
+# --- LISTE DES 72 MATCHS (COMPLETE) ---
 MATCHS = [
     # --- JEUDI 11 JUIN ---
     {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
@@ -111,8 +111,6 @@ MATCHS = [
     {"id": 63, "date": "2026-06-23", "heure": "19h", "groupe": "Groupe K", "eqA": "🇵🇹 Portugal", "eqB": "🇺🇿 Ouzbékistan", "scA": None, "scB": None},
     {"id": 69, "date": "2026-06-23", "heure": "22h", "groupe": "Groupe L", "eqA": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", "eqB": "🇬🇭 Ghana", "scA": None, "scB": None},
     {"id": 52, "date": "2026-06-23", "heure": "23h", "groupe": "Groupe I", "eqA": "🇸🇳 Sénégal", "eqB": "🇳🇴 Norvège", "scA": None, "scB": None},
-    
-    # --- AJOUT DU MATCH MANQUANT GROUPE I ---
     {"id": 54, "date": "2026-06-23", "heure": "18h", "groupe": "Groupe I", "eqA": "🇸🇳 Sénégal", "eqB": "🏳️ Barragiste 2", "scA": None, "scB": None},
 
     # --- MERCREDI 24 JUIN ---
@@ -120,8 +118,6 @@ MATCHS = [
     {"id": 11, "date": "2026-06-24", "heure": "21h", "groupe": "Groupe B", "eqA": "🇨🇭 Suisse", "eqB": "🇨🇦 Canada", "scA": None, "scB": None},
     {"id": 12, "date": "2026-06-24", "heure": "21h", "groupe": "Groupe B", "eqA": "🏳️ Barragiste A", "eqB": "🇶🇦 Qatar", "scA": None, "scB": None},
     {"id": 64, "date": "2026-06-24", "heure": "04h", "groupe": "Groupe K", "eqA": "🏳️ Barragiste 1", "eqB": "🇨🇴 Colombie", "scA": None, "scB": None},
-    
-    # --- AJOUT DU MATCH MANQUANT GROUPE L ---
     {"id": 70, "date": "2026-06-24", "heure": "22h", "groupe": "Groupe L", "eqA": "🇭🇷 Croatie", "eqB": "🇵🇦 Panama", "scA": None, "scB": None},
 
     # --- JEUDI 25 JUIN ---
@@ -143,6 +139,9 @@ MATCHS = [
     {"id": 42, "date": "2026-06-27", "heure": "05h", "groupe": "Groupe G", "eqA": "🇪🇬 Égypte", "eqB": "🇮🇷 Iran", "scA": None, "scB": None},
     {"id": 46, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇨🇻 Cap-Vert", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
     {"id": 47, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇺🇾 Uruguay", "eqB": "🇪🇸 Espagne", "scA": None, "scB": None},
+    # AJOUT MATCH MANQUANT GROUPE H (ID 48)
+    {"id": 48, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇨🇻 Cap-Vert", "eqB": "🇸🇦 Arabie Saoudite", "scA": None, "scB": None},
+    
     {"id": 51, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🏳️ Barragiste 2", "scA": None, "scB": None},
     {"id": 53, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇳🇴 Norvège", "eqB": "🇫🇷 France", "scA": None, "scB": None},
 
