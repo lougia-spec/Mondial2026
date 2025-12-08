@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 22:30"
+DERNIERE_MAJ = "08/12/2025 à 23:00"
 
 # --- CONNEXION GOOGLE SHEETS (OPTIMISÉE) ---
 @st.cache_resource
@@ -191,19 +191,14 @@ def calculer_classement_groupe(nom_groupe):
     df = df.sort_values(by=['Pts', 'Diff', 'BP'], ascending=False)
     return df
 
-# NOUVELLE FONCTION POUR L'AVIS DE LA FOULE
 def calculer_tendance(match_id, df_tout):
     if df_tout.empty: return None
-    
-    # On filtre sur le match
     df_m = df_tout[df_tout['Match_ID'] == match_id]
     if df_m.empty: return None
-    
     vic_A = 0
     vic_B = 0
     nul = 0
     total = 0
-    
     for index, row in df_m.iterrows():
         try:
             pa = int(row['Prono_A'])
@@ -213,14 +208,53 @@ def calculer_tendance(match_id, df_tout):
             elif pb > pa: vic_B += 1
             else: nul += 1
         except: pass
-        
     if total == 0: return None
-    
     return {
         "A": round(vic_A / total * 100),
         "B": round(vic_B / total * 100),
         "N": round(nul / total * 100)
     }
+
+# NOUVEAU : CALCUL DE LA REMONTADA (EVOLUTION)
+def calculer_historique_classement(df_pronos):
+    matchs_termines = [m for m in MATCHS if m['scA'] is not None]
+    if not matchs_termines:
+        return pd.DataFrame() # Pas de graphique si pas de matchs joués
+
+    matchs_termines.sort(key=lambda x: x['date'])
+    
+    # On récupère le nom de la colonne joueur (Pseudo ou Nom et Prénom)
+    col_nom = "Nom et Prénom" if "Nom et Prénom" in df_pronos.columns else "Pseudo"
+    if col_nom not in df_pronos.columns: return pd.DataFrame()
+
+    joueurs = df_pronos[col_nom].unique()
+    scores = {j: 0 for j in joueurs}
+    historique = []
+    
+    # Point de départ
+    for j in joueurs:
+        historique.append({"Date": "Début", "Joueur": j, "Points": 0})
+
+    dates_uniques = sorted(list(set(m['date'] for m in matchs_termines)))
+    
+    for d in dates_uniques:
+        matchs_du_jour = [m for m in matchs_termines if m['date'] == d]
+        
+        for m in matchs_du_jour:
+            for j in joueurs:
+                prono_ligne = df_pronos[(df_pronos[col_nom] == j) & (df_pronos['Match_ID'] == m['id'])]
+                if not prono_ligne.empty:
+                    pts = calculer_points(prono_ligne.iloc[0]['Prono_A'], prono_ligne.iloc[0]['Prono_B'], m['scA'], m['scB'])
+                    scores[j] += pts
+        
+        date_obj = datetime.strptime(d, "%Y-%m-%d")
+        date_str = f"{date_obj.day}/{date_obj.month}"
+        
+        for j in joueurs:
+            historique.append({"Date": date_str, "Joueur": j, "Points": scores[j]})
+            
+    df_hist = pd.DataFrame(historique)
+    return df_hist
 
 # --- INTERFACE ---
 
@@ -233,12 +267,14 @@ with st.sidebar:
     
     try:
         df_top = charger_donnees()
-        if not df_top.empty and "Nom et Prénom" in df_top.columns:
+        col_nom = "Nom et Prénom" if "Nom et Prénom" in df_top.columns else "Pseudo"
+        
+        if not df_top.empty and col_nom in df_top.columns:
             scores_live = {}
-            joueurs_live = df_top['Nom et Prénom'].unique()
+            joueurs_live = df_top[col_nom].unique()
             for j in joueurs_live:
                 pts = 0
-                pronos_j = df_top[df_top['Nom et Prénom'] == j]
+                pronos_j = df_top[df_top[col_nom] == j]
                 for m in MATCHS:
                     pari = pronos_j[pronos_j.Match_ID == m['id']]
                     if not pari.empty and m['scA'] is not None:
@@ -262,7 +298,7 @@ with st.sidebar:
     st.markdown("---")
     st.write(f"🕒 **MàJ :** `{DERNIERE_MAJ}`")
     try:
-        nb_joueurs = len(df_top['Nom et Prénom'].unique()) if not df_top.empty else 0
+        nb_joueurs = len(df_top[col_nom].unique()) if not df_top.empty else 0
         st.caption(f"{nb_joueurs} joueurs inscrits")
     except: pass
 
@@ -280,7 +316,6 @@ with tab1:
     except Exception as e:
         st.error(f"⚠️ Erreur: {e}")
     
-    # On charge les données une fois pour les stats
     df_stats = charger_donnees()
 
     with st.form("grille_pronos"):
@@ -305,7 +340,6 @@ with tab1:
             for i, m in enumerate(matchs_du_jour):
                 with cols[i % 2]:
                     with st.container(border=True):
-                        # AVIS DE LA FOULE ICI
                         stats = calculer_tendance(m['id'], df_stats)
                         if stats:
                             st.caption(f"📊 Tendance : {m['eqA']} {stats['A']}% - Nul {stats['N']}% - {m['eqB']} {stats['B']}%")
@@ -366,7 +400,7 @@ with tab2:
     
     ---
     ### ⚠️ Autres règles
-    * **Important** : La totalité de la grille (tous les matchs) doit être remplie et validée impérativement avant le coup d'envoi du premier match de la Coupe du Monde.
+    * **IMPORTANT :** La totalité de la grille (tous les matchs) doit être remplie et validée **impérativement avant le coup d'envoi du premier match** de la Coupe du Monde. Toute grille incomplète ou en retard ne sera pas prise en compte.
     * En cas d'égalité de points à la fin, le nombre de "Scores Exacts" départagera les joueurs.
     """)
 
@@ -376,6 +410,13 @@ with tab3:
     if df.empty:
         st.info("Personne n'a encore parié.")
     else:
+        # GRAPHIQUE REMONTADA
+        df_remontada = calculer_historique_classement(df)
+        if not df_remontada.empty:
+            st.write("### 📈 La Remontada (Évolution)")
+            df_chart = df_remontada.pivot(index="Date", columns="Joueur", values="Points")
+            st.line_chart(df_chart)
+        
         scores_joueurs = {}
         col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
         if col_nom in df.columns:
