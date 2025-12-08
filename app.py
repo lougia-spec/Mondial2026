@@ -8,12 +8,12 @@ from datetime import datetime
 # --- 1. CONFIGURATION ---
 st.set_page_config(
     page_title="Mondial 2026",
-    page_icon="⚽",
+    page_icon="🏆",
     layout="wide"
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 18:00"
+DERNIERE_MAJ = "08/12/2025 à 18:30"
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
@@ -206,11 +206,12 @@ def calculer_classement_groupe(nom_groupe):
 
 # --- INTERFACE ---
 
-# 1. Bannière
-st.image("https://images.unsplash.com/photo-1522778119026-d647f0565c6a?q=80&w=2070&auto=format&fit=crop", use_container_width=True)
+# Image Logo Officiel (Utilisation d'une URL stable)
+LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/FIFA_World_Cup_2026_Logo.svg/1024px-FIFA_World_Cup_2026_Logo.svg.png"
 
 # 2. Barre Latérale
 with st.sidebar:
+    st.image(LOGO_URL, width=200) # LE LOGO EST ICI
     st.title("⚽ Mondial 2026")
     st.info("Bienvenue sur l'app de pronostics !")
     
@@ -233,7 +234,6 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-# AJOUT DU 4EME ONGLET "MES PARIS"
 tab1, tab2, tab3, tab4 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Classement des Groupes", "👀 Mes Paris"])
 
 with tab1:
