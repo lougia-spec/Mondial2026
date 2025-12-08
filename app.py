@@ -17,7 +17,8 @@ st.set_page_config(
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = True  
-DERNIERE_MAJ = "09/12/2025 à 12:00"
+DERNIERE_MAJ = "09/12/2025 à 15:00"
+LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 # 👆 ---------------------------- 👆
 
 # --- CONNEXION GOOGLE SHEETS ---
@@ -140,29 +141,23 @@ def charger_donnees():
         return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
 
 def envoyer_confirmation(destinataire, nom):
-    # On vérifie si les secrets email existent
     if "email" not in st.secrets: return
-    
     sender_email = st.secrets["email"]["address"]
     sender_password = st.secrets["email"]["password"]
-    
     try:
-        # Mail pour le joueur uniquement
         msg = MIMEMultipart()
         msg['From'] = sender_email
         msg['To'] = destinataire
         msg['Subject'] = "⚽ Mondial 2026 - Pronostics enregistrés !"
-        body = f"Bonjour {nom},\n\nTes pronostics pour le Mondial 2026 ont bien été validés !\nTu peux les retrouver à tout moment sur l'application.\n\nBonne chance ! 🍀"
+        body = f"Bonjour {nom},\n\nTes pronostics pour le Mondial 2026 ont bien été validés !\n\nN'oublie pas de rejoindre le groupe WhatsApp pour suivre la compétition : {LIEN_WHATSAPP}\n\nBonne chance ! 🍀"
         msg.attach(MIMEText(body, 'plain'))
-        
-        # Connexion SMTP Gmail
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, destinataire, msg.as_string())
         server.quit()
     except Exception as e:
-        print(f"Erreur envoi mail: {e}")
+        st.error(f"Erreur d'envoi d'email : {e}")
 
 def sauvegarder_tout(nom_prenom, email, liste_pronos):
     sheet = connect_to_gsheets()
@@ -171,7 +166,6 @@ def sauvegarder_tout(nom_prenom, email, liste_pronos):
     for (match_id, pa, pb) in liste_pronos:
         lignes_a_ajouter.append([nom_prenom, email, match_id, pa, pb])
     sheet.append_rows(lignes_a_ajouter)
-    # Envoi email participant seulement
     envoyer_confirmation(email, nom_prenom)
     charger_donnees.clear()
 
@@ -366,6 +360,10 @@ with tab1:
                             liste_a_envoyer.append((mid, sa, sb))
                         sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                     st.success(f"✅ C'est enregistré {nom_prenom} !")
+                    st.markdown("---")
+                    st.success("📲 **REJOINS LE GROUPE WHATSAPP MAINTENANT !**")
+                    st.markdown("Clique ci-dessous pour être au courant de tout :")
+                    st.link_button("Rejoindre le groupe WhatsApp ⚽", LIEN_WHATSAPP)
                     st.balloons()
     else:
         st.error("⛔️ Les pronostics sont fermés ! La compétition a commencé.")
