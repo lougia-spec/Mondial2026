@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 14:00"
+DERNIERE_MAJ = "08/12/2025 à 15:00"
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
@@ -141,20 +141,21 @@ MATCHS = [
 def charger_donnees():
     try:
         sheet = connect_to_gsheets()
-        if sheet is None: return pd.DataFrame(columns=["Pseudo", "Match_ID", "Prono_A", "Prono_B"])
+        if sheet is None: return pd.DataFrame(columns=["Pseudo", "Email", "Match_ID", "Prono_A", "Prono_B"])
         data = sheet.get_all_records()
         if not data:
-            return pd.DataFrame(columns=["Pseudo", "Match_ID", "Prono_A", "Prono_B"])
+            return pd.DataFrame(columns=["Pseudo", "Email", "Match_ID", "Prono_A", "Prono_B"])
         return pd.DataFrame(data)
     except Exception as e:
-        return pd.DataFrame(columns=["Pseudo", "Match_ID", "Prono_A", "Prono_B"])
+        return pd.DataFrame(columns=["Pseudo", "Email", "Match_ID", "Prono_A", "Prono_B"])
 
-def sauvegarder_tout(pseudo, liste_pronos):
+def sauvegarder_tout(pseudo, email, liste_pronos):
     sheet = connect_to_gsheets()
     if sheet is None: return
     lignes_a_ajouter = []
     for (match_id, pa, pb) in liste_pronos:
-        lignes_a_ajouter.append([pseudo, match_id, pa, pb])
+        # Ordre des colonnes : Pseudo, Email, Match_ID, Prono_A, Prono_B
+        lignes_a_ajouter.append([pseudo, email, match_id, pa, pb])
     sheet.append_rows(lignes_a_ajouter)
 
 def calculer_points(prono_a, prono_b, reel_a, reel_b):
@@ -180,10 +181,8 @@ def calculer_classement_groupe(nom_groupe):
         equipes.add(m['eqA'])
         equipes.add(m['eqB'])
     
-    # Init stats
     stats = {eq: {'Pts': 0, 'J': 0, 'Diff': 0, 'BP': 0} for eq in equipes}
     
-    # Calcul
     for m in matchs_grp:
         if m['scA'] is not None and m['scB'] is not None:
             sA, sB = m['scA'], m['scB']
@@ -203,7 +202,6 @@ def calculer_classement_groupe(nom_groupe):
                 stats[m['eqB']]['Pts'] += 1
                 
     df = pd.DataFrame.from_dict(stats, orient='index')
-    # Tri : Points > Diff > Buts Pour
     df = df.sort_values(by=['Pts', 'Diff', 'BP'], ascending=False)
     return df
 
@@ -236,7 +234,7 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-tab1, tab2, tab3 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Les Groupes"])
+tab1, tab2, tab3 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Classement des Groupes"])
 
 with tab1:
     st.write("### 📅 Le Calendrier")
@@ -248,10 +246,13 @@ with tab1:
         st.error(f"⚠️ Erreur de connexion Google. Vérifie tes 'Secrets'. Détail: {e}")
     
     with st.form("grille_pronos"):
-        pseudo = st.text_input("Ton Pseudo (Obligatoire) :")
+        # NOUVEAUX CHAMPS ICI
+        col_p, col_e = st.columns(2)
+        pseudo = col_p.text_input("Ton Pseudo (Obligatoire) :")
+        email = col_e.text_input("Ton Email (Pour les résultats) :")
+
         saisies = {}
         
-        # --- TRI CHRONOLOGIQUE ---
         MATCHS.sort(key=lambda x: x['date'])
         dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
         
@@ -272,7 +273,6 @@ with tab1:
                         st.caption(f"🕑 {m['heure']} - {m['groupe']}")
                         st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
                         c1, c2 = st.columns(2)
-                        # Clés Uniques Garanties
                         pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
                         pb = c2.number_input(f"{m['eqB']}", 0, 10, key=f"B_{m['id']}")
                         saisies[m['id']] = (pa, pb)
@@ -282,21 +282,21 @@ with tab1:
         valider = st.form_submit_button("Valider et Enregistrer", use_container_width=True)
     
     if valider:
-        if not pseudo:
-            st.error("⚠️ Il faut un pseudo !")
+        if not pseudo or not email:
+            st.error("⚠️ Il faut un pseudo ET un email !")
         else:
             df = charger_donnees()
             pseudos_existants = df['Pseudo'].astype(str).values if not df.empty else []
             if pseudo in pseudos_existants:
                 st.warning(f"Le pseudo {pseudo} a déjà joué ! Modifie-le ou contacte l'admin.")
             else:
-                with st.spinner("Envoi de tes pronostics au siège de la FIFA..."):
+                with st.spinner("Envoi de tes pronostics..."):
                     liste_a_envoyer = []
                     for mid, (sa, sb) in saisies.items():
                         liste_a_envoyer.append((mid, sa, sb))
-                    sauvegarder_tout(pseudo, liste_a_envoyer)
+                    sauvegarder_tout(pseudo, email, liste_a_envoyer)
                     
-                st.success(f"✅ C'est enregistré {pseudo} ! Bonne chance 🍀")
+                st.success(f"✅ C'est enregistré {pseudo} ! On t'enverra les résultats sur {email}.")
                 st.balloons()
 
 with tab2:
@@ -329,7 +329,7 @@ with tab3:
     st.info("Ce classement est calculé automatiquement selon les résultats réels.")
     
     groupes = sorted(list(set(m['groupe'] for m in MATCHS)))
-    cols = st.columns(2) # 2 colonnes pour mieux voir les tableaux
+    cols = st.columns(2)
     
     for i, grp in enumerate(groupes):
         with cols[i % 2]: 
