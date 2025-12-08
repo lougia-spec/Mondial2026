@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 15:00"
+DERNIERE_MAJ = "08/12/2025 à 16:00"
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
@@ -141,21 +141,20 @@ MATCHS = [
 def charger_donnees():
     try:
         sheet = connect_to_gsheets()
-        if sheet is None: return pd.DataFrame(columns=["Pseudo", "Email", "Match_ID", "Prono_A", "Prono_B"])
+        if sheet is None: return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
         data = sheet.get_all_records()
         if not data:
-            return pd.DataFrame(columns=["Pseudo", "Email", "Match_ID", "Prono_A", "Prono_B"])
+            return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
         return pd.DataFrame(data)
     except Exception as e:
-        return pd.DataFrame(columns=["Pseudo", "Email", "Match_ID", "Prono_A", "Prono_B"])
+        return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
 
-def sauvegarder_tout(pseudo, email, liste_pronos):
+def sauvegarder_tout(nom_prenom, email, liste_pronos):
     sheet = connect_to_gsheets()
     if sheet is None: return
     lignes_a_ajouter = []
     for (match_id, pa, pb) in liste_pronos:
-        # Ordre des colonnes : Pseudo, Email, Match_ID, Prono_A, Prono_B
-        lignes_a_ajouter.append([pseudo, email, match_id, pa, pb])
+        lignes_a_ajouter.append([nom_prenom, email, match_id, pa, pb])
     sheet.append_rows(lignes_a_ajouter)
 
 def calculer_points(prono_a, prono_b, reel_a, reel_b):
@@ -226,7 +225,7 @@ with st.sidebar:
     st.markdown("---")
     try:
         df_count = charger_donnees()
-        nb_joueurs = len(df_count['Pseudo'].unique()) if not df_count.empty else 0
+        nb_joueurs = len(df_count['Nom et Prénom'].unique()) if not df_count.empty else 0
         st.metric("Joueurs inscrits", nb_joueurs)
     except:
         pass
@@ -246,9 +245,8 @@ with tab1:
         st.error(f"⚠️ Erreur de connexion Google. Vérifie tes 'Secrets'. Détail: {e}")
     
     with st.form("grille_pronos"):
-        # NOUVEAUX CHAMPS ICI
         col_p, col_e = st.columns(2)
-        pseudo = col_p.text_input("Ton Pseudo (Obligatoire) :")
+        nom_prenom = col_p.text_input("Ton Nom et Prénom (Obligatoire) :")
         email = col_e.text_input("Ton Email (Pour les résultats) :")
 
         saisies = {}
@@ -282,21 +280,22 @@ with tab1:
         valider = st.form_submit_button("Valider et Enregistrer", use_container_width=True)
     
     if valider:
-        if not pseudo or not email:
-            st.error("⚠️ Il faut un pseudo ET un email !")
+        if not nom_prenom or not email:
+            st.error("⚠️ Il faut ton Nom/Prénom ET un email !")
         else:
             df = charger_donnees()
-            pseudos_existants = df['Pseudo'].astype(str).values if not df.empty else []
-            if pseudo in pseudos_existants:
-                st.warning(f"Le pseudo {pseudo} a déjà joué ! Modifie-le ou contacte l'admin.")
+            # On vérifie si ce nom existe déjà
+            noms_existants = df['Nom et Prénom'].astype(str).values if not df.empty else []
+            if nom_prenom in noms_existants:
+                st.warning(f"Attention, {nom_prenom} a déjà joué ! Modifie le nom si c'est un homonyme.")
             else:
                 with st.spinner("Envoi de tes pronostics..."):
                     liste_a_envoyer = []
                     for mid, (sa, sb) in saisies.items():
                         liste_a_envoyer.append((mid, sa, sb))
-                    sauvegarder_tout(pseudo, email, liste_a_envoyer)
+                    sauvegarder_tout(nom_prenom, email, liste_a_envoyer)
                     
-                st.success(f"✅ C'est enregistré {pseudo} ! On t'enverra les résultats sur {email}.")
+                st.success(f"✅ C'est enregistré {nom_prenom} ! On t'enverra les résultats sur {email}.")
                 st.balloons()
 
 with tab2:
@@ -306,10 +305,10 @@ with tab2:
         st.info("Personne n'a encore parié.")
     else:
         scores_joueurs = {}
-        joueurs = df['Pseudo'].unique()
+        joueurs = df['Nom et Prénom'].unique()
         for j in joueurs:
             pts = 0
-            pronos_j = df[df.Pseudo == j]
+            pronos_j = df[df['Nom et Prénom'] == j]
             for m in MATCHS:
                 pari = pronos_j[pronos_j.Match_ID == m['id']]
                 if not pari.empty and m['scA'] is not None:
