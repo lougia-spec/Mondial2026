@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 16:00"
+DERNIERE_MAJ = "08/12/2025 à 18:00"
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
@@ -32,10 +32,10 @@ def connect_to_gsheets():
 # --- LISTE DES MATCHS ---
 MATCHS = [
     # --- JEUDI 11 JUIN ---
-    {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": 2, "scB": 0},
+    {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
     
     # --- VENDREDI 12 JUIN ---
-    {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🏳️ Barragiste D", "scA": 0, "scB": 1},
+    {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🏳️ Barragiste D", "scA": None, "scB": None},
     {"id": 7, "date": "2026-06-12", "heure": "21h", "groupe": "Groupe B", "eqA": "🇨🇦 Canada", "eqB": "🏳️ Barragiste A", "scA": None, "scB": None},
 
     # --- SAMEDI 13 JUIN ---
@@ -233,7 +233,8 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-tab1, tab2, tab3 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Classement des Groupes"])
+# AJOUT DU 4EME ONGLET "MES PARIS"
+tab1, tab2, tab3, tab4 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Classement des Groupes", "👀 Mes Paris"])
 
 with tab1:
     st.write("### 📅 Le Calendrier")
@@ -284,7 +285,6 @@ with tab1:
             st.error("⚠️ Il faut ton Nom/Prénom ET un email !")
         else:
             df = charger_donnees()
-            # On vérifie si ce nom existe déjà
             noms_existants = df['Nom et Prénom'].astype(str).values if not df.empty else []
             if nom_prenom in noms_existants:
                 st.warning(f"Attention, {nom_prenom} a déjà joué ! Modifie le nom si c'est un homonyme.")
@@ -336,3 +336,35 @@ with tab3:
                 st.subheader(grp)
                 df_classement = calculer_classement_groupe(grp)
                 st.dataframe(df_classement, use_container_width=True)
+
+with tab4:
+    st.header("🔍 Retrouver mes pronostics")
+    st.write("Entre ton nom exact pour voir ce que tu as joué.")
+    
+    nom_search = st.text_input("Ton Nom et Prénom :")
+    
+    if nom_search:
+        df = charger_donnees()
+        if not df.empty and nom_search in df['Nom et Prénom'].values:
+            mes_pronos = df[df['Nom et Prénom'] == nom_search]
+            
+            data_affichage = []
+            for m in MATCHS:
+                ligne_prono = mes_pronos[mes_pronos['Match_ID'] == m['id']]
+                if not ligne_prono.empty:
+                    pa = ligne_prono.iloc[0]['Prono_A']
+                    pb = ligne_prono.iloc[0]['Prono_B']
+                    # On affiche le match et le prono
+                    data_affichage.append({
+                        "Date": m['date'],
+                        "Match": f"{m['eqA']} vs {m['eqB']}",
+                        "Mon Prono": f"{pa} - {pb}"
+                    })
+            
+            if data_affichage:
+                df_show = pd.DataFrame(data_affichage)
+                st.table(df_show)
+            else:
+                st.warning("Aucun pronostic trouvé pour ce nom.")
+        else:
+            st.info("Nom introuvable ou pas encore joué.")
