@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 22:00"
+DERNIERE_MAJ = "08/12/2025 à 22:30"
 
 # --- CONNEXION GOOGLE SHEETS (OPTIMISÉE) ---
 @st.cache_resource
@@ -191,6 +191,37 @@ def calculer_classement_groupe(nom_groupe):
     df = df.sort_values(by=['Pts', 'Diff', 'BP'], ascending=False)
     return df
 
+# NOUVELLE FONCTION POUR L'AVIS DE LA FOULE
+def calculer_tendance(match_id, df_tout):
+    if df_tout.empty: return None
+    
+    # On filtre sur le match
+    df_m = df_tout[df_tout['Match_ID'] == match_id]
+    if df_m.empty: return None
+    
+    vic_A = 0
+    vic_B = 0
+    nul = 0
+    total = 0
+    
+    for index, row in df_m.iterrows():
+        try:
+            pa = int(row['Prono_A'])
+            pb = int(row['Prono_B'])
+            total += 1
+            if pa > pb: vic_A += 1
+            elif pb > pa: vic_B += 1
+            else: nul += 1
+        except: pass
+        
+    if total == 0: return None
+    
+    return {
+        "A": round(vic_A / total * 100),
+        "B": round(vic_B / total * 100),
+        "N": round(nul / total * 100)
+    }
+
 # --- INTERFACE ---
 
 with st.sidebar:
@@ -249,6 +280,9 @@ with tab1:
     except Exception as e:
         st.error(f"⚠️ Erreur: {e}")
     
+    # On charge les données une fois pour les stats
+    df_stats = charger_donnees()
+
     with st.form("grille_pronos"):
         col_p, col_e = st.columns(2)
         nom_prenom = col_p.text_input("Ton Nom et Prénom (Obligatoire) :")
@@ -271,7 +305,13 @@ with tab1:
             for i, m in enumerate(matchs_du_jour):
                 with cols[i % 2]:
                     with st.container(border=True):
-                        st.caption(f"🕑 {m['heure']} - {m['groupe']}")
+                        # AVIS DE LA FOULE ICI
+                        stats = calculer_tendance(m['id'], df_stats)
+                        if stats:
+                            st.caption(f"📊 Tendance : {m['eqA']} {stats['A']}% - Nul {stats['N']}% - {m['eqB']} {stats['B']}%")
+                        else:
+                            st.caption(f"🕑 {m['heure']} - {m['groupe']}")
+                        
                         st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
                         c1, c2 = st.columns(2)
                         pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
