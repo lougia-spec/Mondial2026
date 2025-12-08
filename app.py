@@ -7,22 +7,19 @@ from oauth2client.service_account import ServiceAccountCredentials
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Mondial 2026", page_icon="⚽", layout="centered")
 
-# --- CONNEXION GOOGLE SHEETS (VERSION FACILE) ---
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     
-    # On récupère le fichier secret
+    # Lecture des secrets (Méthode robuste)
     json_info = st.secrets["gcp_service_account"]["json_file"]
     creds_dict = json.loads(json_info)
     
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
     
-    # MODIFICATION ICI : Remplace la clé ci-dessous par LA TIENNE que tu as copiée
-    # Exemple : client.open_by_key("1BxiM-AbcDeFgHiJkLmNoPqRsTvUwXYz").sheet1
+    # Ta clé spécifique (récupérée de tes logs)
     sheet = client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
-    
     return sheet
 
 # --- LISTE DES MATCHS ---
@@ -112,9 +109,14 @@ def charger_donnees():
     except Exception as e:
         return pd.DataFrame(columns=["Pseudo", "Match_ID", "Prono_A", "Prono_B"])
 
-def sauvegarder_prono(pseudo, match_id, pa, pb):
+def sauvegarder_tout(pseudo, liste_pronos):
+    """Sauvegarde tout d'un coup pour éviter de bloquer l'API"""
     sheet = connect_to_gsheets()
-    sheet.append_row([pseudo, match_id, pa, pb])
+    lignes_a_ajouter = []
+    for (match_id, pa, pb) in liste_pronos:
+        lignes_a_ajouter.append([pseudo, match_id, pa, pb])
+    # On écrit tout en une seule fois (Rapide et Sûr)
+    sheet.append_rows(lignes_a_ajouter)
 
 def calculer_points(prono_a, prono_b, reel_a, reel_b):
     if reel_a is None: return 0 
@@ -139,11 +141,12 @@ tab1, tab2, tab3 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Les Grou
 with tab1:
     st.write("### Remplis ta grille")
     try:
+        # On teste juste la connexion une fois au chargement
         if "google_ok" not in st.session_state:
             connect_to_gsheets()
             st.session_state["google_ok"] = True
     except Exception as e:
-        st.error(f"⚠️ Erreur de connexion Google. Vérifie tes 'Secrets' dans Streamlit Cloud. Détail: {e}")
+        st.error(f"⚠️ Erreur de connexion Google. Vérifie tes 'Secrets'. Détail: {e}")
     
     with st.form("grille_pronos"):
         pseudo = st.text_input("Ton Pseudo :")
@@ -172,8 +175,14 @@ with tab1:
                 st.warning(f"Le pseudo {pseudo} a déjà joué ! Modifie-le ou contacte l'admin.")
             else:
                 with st.spinner("Sauvegarde dans le Cloud en cours..."):
+                    # On prépare la liste pour l'envoi groupé
+                    liste_a_envoyer = []
                     for mid, (sa, sb) in saisies.items():
-                        sauvegarder_prono(pseudo, mid, sa, sb)
+                        liste_a_envoyer.append((mid, sa, sb))
+                    
+                    # On envoie tout d'un coup
+                    sauvegarder_tout(pseudo, liste_a_envoyer)
+                    
                 st.success(f"✅ C'est enregistré {pseudo} ! Tes amis peuvent voir ton score.")
                 st.balloons()
 
