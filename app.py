@@ -4,21 +4,21 @@ import gspread
 import json
 from oauth2client.service_account import ServiceAccountCredentials
 
-# --- CONFIGURATION ---
-st.set_page_config(page_title="Mondial 2026", page_icon="⚽", layout="centered")
+# --- 1. CONFIGURATION (MODE LARGE) ---
+st.set_page_config(
+    page_title="Mondial 2026",
+    page_icon="⚽",
+    layout="wide"  # <--- Ça change tout !
+)
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    
-    # Lecture des secrets (Méthode robuste)
     json_info = st.secrets["gcp_service_account"]["json_file"]
     creds_dict = json.loads(json_info)
-    
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
-    
-    # Ta clé spécifique (récupérée de tes logs)
+    # Ta clé spécifique
     sheet = client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
     return sheet
 
@@ -110,12 +110,10 @@ def charger_donnees():
         return pd.DataFrame(columns=["Pseudo", "Match_ID", "Prono_A", "Prono_B"])
 
 def sauvegarder_tout(pseudo, liste_pronos):
-    """Sauvegarde tout d'un coup pour éviter de bloquer l'API"""
     sheet = connect_to_gsheets()
     lignes_a_ajouter = []
     for (match_id, pa, pb) in liste_pronos:
         lignes_a_ajouter.append([pseudo, match_id, pa, pb])
-    # On écrit tout en une seule fois (Rapide et Sûr)
     sheet.append_rows(lignes_a_ajouter)
 
 def calculer_points(prono_a, prono_b, reel_a, reel_b):
@@ -134,14 +132,39 @@ def calculer_points(prono_a, prono_b, reel_a, reel_b):
             points += 2
     return points
 
-# --- INTERFACE ---
-st.title("🏆 Coupe du Monde 2026")
+# --- INTERFACE (Améliorée) ---
+
+# 1. Image de bannière (Style)
+st.image("https://images.unsplash.com/photo-1522778119026-d647f0565c6a?q=80&w=2070&auto=format&fit=crop", use_container_width=True)
+
+# 2. Barre Latérale (Sidebar)
+with st.sidebar:
+    st.title("⚽ Mondial 2026")
+    st.info("Bienvenue sur l'app de pronostics !")
+    
+    st.markdown("---")
+    st.write("### 📜 Les Règles")
+    st.success("✅ **1 Point** : Bon vainqueur (ou nul)")
+    st.success("🎯 **3 Points** : Score Exact")
+    
+    st.markdown("---")
+    st.write("### 👥 Participants")
+    # On charge les données juste pour compter les joueurs
+    try:
+        df_count = charger_donnees()
+        nb_joueurs = len(df_count['Pseudo'].unique()) if not df_count.empty else 0
+        st.metric("Nombre de joueurs", nb_joueurs)
+    except:
+        st.write("Chargement...")
+
+
+st.title("🏆 Faites vos Jeux !")
+
 tab1, tab2, tab3 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Les Groupes"])
 
 with tab1:
     st.write("### Remplis ta grille")
     try:
-        # On teste juste la connexion une fois au chargement
         if "google_ok" not in st.session_state:
             connect_to_gsheets()
             st.session_state["google_ok"] = True
@@ -152,8 +175,15 @@ with tab1:
         pseudo = st.text_input("Ton Pseudo :")
         saisies = {}
         groupes_liste = sorted(list(set(m['groupe'] for m in MATCHS)))
-        for grp in groupes_liste:
-            with st.expander(grp, expanded=False): 
+        
+        # On affiche les groupes en 2 colonnes pour gagner de la place
+        col_gr1, col_gr2 = st.columns(2)
+        
+        for index, grp in enumerate(groupes_liste):
+            # Une fois à gauche, une fois à droite
+            zone = col_gr1 if index % 2 == 0 else col_gr2
+            
+            with zone.expander(grp, expanded=False): 
                 matchs_grp = [m for m in MATCHS if m['groupe'] == grp]
                 for m in matchs_grp:
                     st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
@@ -162,7 +192,10 @@ with tab1:
                     pb = c2.number_input(f"Buts {m['eqB']}", 0, 10, key=f"B_{m['id']}")
                     saisies[m['id']] = (pa, pb)
                     st.divider()
-        valider = st.form_submit_button("Valider et Enregistrer")
+        
+        # Bouton Valider centré et large
+        st.write("")
+        valider = st.form_submit_button("Valider et Enregistrer", use_container_width=True)
     
     if valider:
         if not pseudo:
@@ -170,20 +203,16 @@ with tab1:
         else:
             df = charger_donnees()
             pseudos_existants = df['Pseudo'].astype(str).values if not df.empty else []
-            
             if pseudo in pseudos_existants:
                 st.warning(f"Le pseudo {pseudo} a déjà joué ! Modifie-le ou contacte l'admin.")
             else:
-                with st.spinner("Sauvegarde dans le Cloud en cours..."):
-                    # On prépare la liste pour l'envoi groupé
+                with st.spinner("Envoi de tes pronostics au siège de la FIFA..."):
                     liste_a_envoyer = []
                     for mid, (sa, sb) in saisies.items():
                         liste_a_envoyer.append((mid, sa, sb))
-                    
-                    # On envoie tout d'un coup
                     sauvegarder_tout(pseudo, liste_a_envoyer)
                     
-                st.success(f"✅ C'est enregistré {pseudo} ! Tes amis peuvent voir ton score.")
+                st.success(f"✅ C'est enregistré {pseudo} ! Bonne chance 🍀")
                 st.balloons()
 
 with tab2:
@@ -209,17 +238,21 @@ with tab2:
             df_rank = pd.DataFrame(list(scores_joueurs.items()), columns=["Joueur", "Points"])
             df_rank = df_rank.sort_values(by="Points", ascending=False).reset_index(drop=True)
             df_rank.index += 1
-            st.dataframe(df_rank, use_container_width=True)
+            # On affiche le classement en plus grand
+            st.dataframe(df_rank, use_container_width=True, height=500)
 
 with tab3:
     st.header("🌍 Les Équipes par Groupe")
     groupes = sorted(list(set(m['groupe'] for m in MATCHS)))
-    for grp in groupes:
-        with st.expander(grp, expanded=False):
-            equipes_du_groupe = set()
-            matchs_du_groupe = [m for m in MATCHS if m['groupe'] == grp]
-            for m in matchs_du_groupe:
-                equipes_du_groupe.add(m['eqA'])
-                equipes_du_groupe.add(m['eqB'])
-            for equipe in sorted(list(equipes_du_groupe)):
-                st.write(f"🛡️ **{equipe}**")
+    cols = st.columns(3) # 3 colonnes pour les groupes
+    for i, grp in enumerate(groupes):
+        with cols[i % 3]: # Distribution sur les 3 colonnes
+            with st.container(border=True):
+                st.subheader(grp)
+                equipes_du_groupe = set()
+                matchs_du_groupe = [m for m in MATCHS if m['groupe'] == grp]
+                for m in matchs_du_groupe:
+                    equipes_du_groupe.add(m['eqA'])
+                    equipes_du_groupe.add(m['eqB'])
+                for equipe in sorted(list(equipes_du_groupe)):
+                    st.write(f"🛡️ {equipe}")
