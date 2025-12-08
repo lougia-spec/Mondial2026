@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 02:25"
+DERNIERE_MAJ = "08/12/2025 à 12:00"
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
@@ -26,8 +26,7 @@ def connect_to_gsheets():
     sheet = client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
     return sheet
 
-# --- LISTE DES MATCHS (MISE À JOUR AVEC DATES CALENDRIER) ---
-# Format date : YYYY-MM-DD pour le tri
+# --- LISTE DES MATCHS (CORRIGÉE ET UNIQUE) ---
 MATCHS = [
     # --- JEUDI 11 JUIN ---
     {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
@@ -65,7 +64,6 @@ MATCHS = [
 
     # --- JEUDI 18 JUIN ---
     {"id": 3, "date": "2026-06-18", "heure": "03h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇰🇷 Corée du Sud", "scA": None, "scB": None},
-    {"id": 5, "date": "2026-06-18", "heure": "18h", "groupe": "Groupe A", "eqA": "🏳️ Barragiste D", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None},
     {"id": 43, "date": "2026-06-18", "heure": "18h", "groupe": "Groupe H", "eqA": "🇪🇸 Espagne", "eqB": "🇨🇻 Cap-Vert", "scA": None, "scB": None},
     {"id": 44, "date": "2026-06-18", "heure": "00h", "groupe": "Groupe H", "eqA": "🇸🇦 Arabie Saoudite", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
 
@@ -228,7 +226,6 @@ with tab1:
             st.markdown(f"### 🗓️ {formater_date(d)}")
             matchs_du_jour = [m for m in MATCHS if m['date'] == d]
             
-            # On affiche les matchs du jour en 2 colonnes
             cols = st.columns(2)
             for i, m in enumerate(matchs_du_jour):
                 with cols[i % 2]:
@@ -236,6 +233,7 @@ with tab1:
                         st.caption(f"🕑 {m['heure']} - {m['groupe']}")
                         st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
                         c1, c2 = st.columns(2)
+                        # Clés Uniques Garanties
                         pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
                         pb = c2.number_input(f"{m['eqB']}", 0, 10, key=f"B_{m['id']}")
                         saisies[m['id']] = (pa, pb)
