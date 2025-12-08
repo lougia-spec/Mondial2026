@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 23:00"
+DERNIERE_MAJ = "08/12/2025 à 23:30"
 
 # --- CONNEXION GOOGLE SHEETS (OPTIMISÉE) ---
 @st.cache_resource
@@ -41,7 +41,7 @@ def connect_to_gsheets():
 
 # --- LISTE DES MATCHS ---
 MATCHS = [
-    {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": 0, "scB": 0},
+    {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
     {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🏳️ Barragiste D", "scA": None, "scB": None},
     {"id": 7, "date": "2026-06-12", "heure": "21h", "groupe": "Groupe B", "eqA": "🇨🇦 Canada", "eqB": "🏳️ Barragiste A", "scA": None, "scB": None},
     {"id": 19, "date": "2026-06-13", "heure": "03h", "groupe": "Groupe D", "eqA": "🇺🇸 USA", "eqB": "🇵🇾 Paraguay", "scA": None, "scB": None},
@@ -215,47 +215,6 @@ def calculer_tendance(match_id, df_tout):
         "N": round(nul / total * 100)
     }
 
-# NOUVEAU : CALCUL DE LA REMONTADA (EVOLUTION)
-def calculer_historique_classement(df_pronos):
-    matchs_termines = [m for m in MATCHS if m['scA'] is not None]
-    if not matchs_termines:
-        return pd.DataFrame() # Pas de graphique si pas de matchs joués
-
-    matchs_termines.sort(key=lambda x: x['date'])
-    
-    # On récupère le nom de la colonne joueur (Pseudo ou Nom et Prénom)
-    col_nom = "Nom et Prénom" if "Nom et Prénom" in df_pronos.columns else "Pseudo"
-    if col_nom not in df_pronos.columns: return pd.DataFrame()
-
-    joueurs = df_pronos[col_nom].unique()
-    scores = {j: 0 for j in joueurs}
-    historique = []
-    
-    # Point de départ
-    for j in joueurs:
-        historique.append({"Date": "Début", "Joueur": j, "Points": 0})
-
-    dates_uniques = sorted(list(set(m['date'] for m in matchs_termines)))
-    
-    for d in dates_uniques:
-        matchs_du_jour = [m for m in matchs_termines if m['date'] == d]
-        
-        for m in matchs_du_jour:
-            for j in joueurs:
-                prono_ligne = df_pronos[(df_pronos[col_nom] == j) & (df_pronos['Match_ID'] == m['id'])]
-                if not prono_ligne.empty:
-                    pts = calculer_points(prono_ligne.iloc[0]['Prono_A'], prono_ligne.iloc[0]['Prono_B'], m['scA'], m['scB'])
-                    scores[j] += pts
-        
-        date_obj = datetime.strptime(d, "%Y-%m-%d")
-        date_str = f"{date_obj.day}/{date_obj.month}"
-        
-        for j in joueurs:
-            historique.append({"Date": date_str, "Joueur": j, "Points": scores[j]})
-            
-    df_hist = pd.DataFrame(historique)
-    return df_hist
-
 # --- INTERFACE ---
 
 with st.sidebar:
@@ -410,13 +369,6 @@ with tab3:
     if df.empty:
         st.info("Personne n'a encore parié.")
     else:
-        # GRAPHIQUE REMONTADA
-        df_remontada = calculer_historique_classement(df)
-        if not df_remontada.empty:
-            st.write("### 📈 La Remontada (Évolution)")
-            df_chart = df_remontada.pivot(index="Date", columns="Joueur", values="Points")
-            st.line_chart(df_chart)
-        
         scores_joueurs = {}
         col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
         if col_nom in df.columns:
