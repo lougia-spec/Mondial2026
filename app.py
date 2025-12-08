@@ -18,7 +18,7 @@ st.set_page_config(
 PRONOS_OUVERTS = True  
 
 # METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 23:45"
+DERNIERE_MAJ = "09/12/2025 à 09:00"
 
 # 👆 ---------------------------------------------------- 👆
 
@@ -48,6 +48,7 @@ def connect_to_gsheets():
     return None
 
 # --- LISTE DES MATCHS ---
+# C'est ici que TU mettras les scores réels au fur et à mesure
 MATCHS = [
     {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
     {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🏳️ Barragiste D", "scA": None, "scB": None},
@@ -272,7 +273,8 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📝 Pronostics", "📜 Règlement", "📊 Classement Complet", "🌍 Groupes", "👀 Mes Paris"])
+# ONGLETS (6 AU TOTAL)
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📝 Pronostics", "📢 Résultats & Calendrier", "📜 Règlement", "📊 Classement", "🌍 Groupes", "👀 Mes Paris"])
 
 with tab1:
     if PRONOS_OUVERTS:
@@ -349,6 +351,27 @@ with tab1:
         st.info("Tu peux toujours consulter ton classement et les résultats dans les autres onglets.")
 
 with tab2:
+    st.header("📢 Résultats & Calendrier")
+    
+    dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
+    for d in dates_uniques:
+        st.markdown(f"##### 🗓️ {formater_date(d)}")
+        matchs_du_jour = [m for m in MATCHS if m['date'] == d]
+        
+        # Affichage en colonnes pour être propre
+        cols = st.columns(2)
+        for i, m in enumerate(matchs_du_jour):
+            with cols[i % 2]:
+                with st.container(border=True):
+                    # Si le score est rentré (match fini)
+                    if m['scA'] is not None and m['scB'] is not None:
+                        st.markdown(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}")
+                        st.caption("✅ Terminé")
+                    else:
+                        st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
+                        st.caption(f"🕒 {m['heure']} - {m['groupe']}")
+
+with tab3:
     st.header("📜 Règlement du Concours")
     st.markdown("""
     ### 🎯 Calcul des Points
@@ -375,7 +398,7 @@ with tab2:
     * En cas d'égalité de points à la fin, le nombre de "Scores Exacts" départagera les joueurs.
     """)
 
-with tab3:
+with tab4:
     st.write("### 📊 Classement Général Complet")
     df = charger_donnees()
     if df.empty:
@@ -402,7 +425,7 @@ with tab3:
                 df_rank.index += 1
                 st.dataframe(df_rank, use_container_width=True, height=600)
 
-with tab4:
+with tab5:
     st.header("🌍 Classement des Groupes")
     groupes = sorted(list(set(m['groupe'] for m in MATCHS)))
     cols = st.columns(2)
@@ -413,7 +436,7 @@ with tab4:
                 df_classement = calculer_classement_groupe(grp)
                 st.dataframe(df_classement, use_container_width=True)
 
-with tab5:
+with tab6:
     st.header("🔍 Retrouver mes pronostics")
     nom_search = st.text_input("Entre ton Nom exact :")
     if nom_search:
