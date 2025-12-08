@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 10:00"
+DERNIERE_MAJ = "08/12/2025 à 2:25"
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
