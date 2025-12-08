@@ -13,20 +13,23 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 12:00"
+DERNIERE_MAJ = "08/12/2025 à 14:00"
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    json_info = st.secrets["gcp_service_account"]["json_file"]
-    creds_dict = json.loads(json_info)
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    client = gspread.authorize(creds)
-    # Ta clé spécifique
-    sheet = client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
-    return sheet
+    try:
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        json_info = st.secrets["gcp_service_account"]["json_file"]
+        creds_dict = json.loads(json_info)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+        client = gspread.authorize(creds)
+        # Ta clé spécifique
+        sheet = client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
+        return sheet
+    except Exception as e:
+        return None
 
-# --- LISTE DES MATCHS (CORRIGÉE ET UNIQUE) ---
+# --- LISTE DES MATCHS ---
 MATCHS = [
     # --- JEUDI 11 JUIN ---
     {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
@@ -104,7 +107,7 @@ MATCHS = [
     {"id": 64, "date": "2026-06-24", "heure": "04h", "groupe": "Groupe K", "eqA": "🏳️ Barragiste 1", "eqB": "🇨🇴 Colombie", "scA": None, "scB": None},
 
     # --- JEUDI 25 JUIN ---
-    {"id": 5, "date": "2026-06-25", "heure": "03h", "groupe": "Groupe A", "eqA": "🏳️ Barragiste D", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None},
+    {"id": 73, "date": "2026-06-25", "heure": "03h", "groupe": "Groupe A", "eqA": "🏳️ Barragiste D", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None},
     {"id": 17, "date": "2026-06-25", "heure": "00h", "groupe": "Groupe C", "eqA": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "eqB": "🇧🇷 Brésil", "scA": None, "scB": None},
     {"id": 18, "date": "2026-06-25", "heure": "00h", "groupe": "Groupe C", "eqA": "🇲🇦 Maroc", "eqB": "🇭🇹 Haïti", "scA": None, "scB": None},
     {"id": 23, "date": "2026-06-25", "heure": "21h", "groupe": "Groupe D", "eqA": "🏳️ Barragiste C", "eqB": "🇺🇸 USA", "scA": None, "scB": None},
@@ -138,6 +141,7 @@ MATCHS = [
 def charger_donnees():
     try:
         sheet = connect_to_gsheets()
+        if sheet is None: return pd.DataFrame(columns=["Pseudo", "Match_ID", "Prono_A", "Prono_B"])
         data = sheet.get_all_records()
         if not data:
             return pd.DataFrame(columns=["Pseudo", "Match_ID", "Prono_A", "Prono_B"])
@@ -147,6 +151,7 @@ def charger_donnees():
 
 def sauvegarder_tout(pseudo, liste_pronos):
     sheet = connect_to_gsheets()
+    if sheet is None: return
     lignes_a_ajouter = []
     for (match_id, pa, pb) in liste_pronos:
         lignes_a_ajouter.append([pseudo, match_id, pa, pb])
@@ -167,6 +172,40 @@ def calculer_points(prono_a, prono_b, reel_a, reel_b):
         if pa == ra and pb == rb:
             points += 2
     return points
+
+def calculer_classement_groupe(nom_groupe):
+    matchs_grp = [m for m in MATCHS if m['groupe'] == nom_groupe]
+    equipes = set()
+    for m in matchs_grp:
+        equipes.add(m['eqA'])
+        equipes.add(m['eqB'])
+    
+    # Init stats
+    stats = {eq: {'Pts': 0, 'J': 0, 'Diff': 0, 'BP': 0} for eq in equipes}
+    
+    # Calcul
+    for m in matchs_grp:
+        if m['scA'] is not None and m['scB'] is not None:
+            sA, sB = m['scA'], m['scB']
+            stats[m['eqA']]['J'] += 1
+            stats[m['eqB']]['J'] += 1
+            stats[m['eqA']]['BP'] += sA
+            stats[m['eqB']]['BP'] += sB
+            stats[m['eqA']]['Diff'] += (sA - sB)
+            stats[m['eqB']]['Diff'] += (sB - sA)
+            
+            if sA > sB:
+                stats[m['eqA']]['Pts'] += 3
+            elif sB > sA:
+                stats[m['eqB']]['Pts'] += 3
+            else:
+                stats[m['eqA']]['Pts'] += 1
+                stats[m['eqB']]['Pts'] += 1
+                
+    df = pd.DataFrame.from_dict(stats, orient='index')
+    # Tri : Points > Diff > Buts Pour
+    df = df.sort_values(by=['Pts', 'Diff', 'BP'], ascending=False)
+    return df
 
 # --- INTERFACE ---
 
@@ -286,17 +325,15 @@ with tab2:
             st.dataframe(df_rank, use_container_width=True, height=500)
 
 with tab3:
-    st.header("🌍 Les Équipes par Groupe")
+    st.header("🌍 Classement des Groupes")
+    st.info("Ce classement est calculé automatiquement selon les résultats réels.")
+    
     groupes = sorted(list(set(m['groupe'] for m in MATCHS)))
-    cols = st.columns(3) 
+    cols = st.columns(2) # 2 colonnes pour mieux voir les tableaux
+    
     for i, grp in enumerate(groupes):
-        with cols[i % 3]: 
+        with cols[i % 2]: 
             with st.container(border=True):
                 st.subheader(grp)
-                equipes_du_groupe = set()
-                matchs_du_groupe = [m for m in MATCHS if m['groupe'] == grp]
-                for m in matchs_du_groupe:
-                    equipes_du_groupe.add(m['eqA'])
-                    equipes_du_groupe.add(m['eqB'])
-                for equipe in sorted(list(equipes_du_groupe)):
-                    st.write(f"🛡️ {equipe}")
+                df_classement = calculer_classement_groupe(grp)
+                st.dataframe(df_classement, use_container_width=True)
