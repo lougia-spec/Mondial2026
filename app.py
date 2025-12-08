@@ -12,8 +12,16 @@ st.set_page_config(
     layout="wide"
 )
 
-# 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 23:30"
+# 👇 --- ZONE D'ADMINISTRATION (TOI SEUL TOUCHES ICI) --- 👇
+
+# METS "False" QUAND LE PREMIER MATCH COMMENCE POUR BLOQUER LES PARIS
+PRONOS_OUVERTS = True  
+
+# METTRE À JOUR CETTE DATE RÉGULIÈREMENT
+DERNIERE_MAJ = "08/12/2025 à 23:45"
+
+# 👆 ---------------------------------------------------- 👆
+
 
 # --- CONNEXION GOOGLE SHEETS (OPTIMISÉE) ---
 @st.cache_resource
@@ -267,74 +275,78 @@ st.title("🏆 Faites vos Jeux !")
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📝 Pronostics", "📜 Règlement", "📊 Classement Complet", "🌍 Groupes", "👀 Mes Paris"])
 
 with tab1:
-    st.write("### 📅 Le Calendrier")
-    try:
-        if "google_ok" not in st.session_state:
-            connect_to_gsheets()
-            st.session_state["google_ok"] = True
-    except Exception as e:
-        st.error(f"⚠️ Erreur: {e}")
-    
-    df_stats = charger_donnees()
-
-    with st.form("grille_pronos"):
-        col_p, col_e = st.columns(2)
-        nom_prenom = col_p.text_input("Ton Nom et Prénom (Obligatoire) :")
-        email = col_e.text_input("Ton Email (Pour les résultats) :")
-
-        saisies = {}
-        MATCHS.sort(key=lambda x: x['date'])
-        dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
+    if PRONOS_OUVERTS:
+        st.write("### 📅 Le Calendrier")
+        try:
+            if "google_ok" not in st.session_state:
+                connect_to_gsheets()
+                st.session_state["google_ok"] = True
+        except Exception as e:
+            st.error(f"⚠️ Erreur: {e}")
         
-        def formater_date(d_str):
-            obj = datetime.strptime(d_str, "%Y-%m-%d")
-            jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
-            mois = ["Jan", "Fév", "Mars", "Avril", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]
-            return f"{jours[obj.weekday()]} {obj.day} {mois[obj.month-1]}"
+        df_stats = charger_donnees()
 
-        for d in dates_uniques:
-            st.markdown(f"### 🗓️ {formater_date(d)}")
-            matchs_du_jour = [m for m in MATCHS if m['date'] == d]
-            cols = st.columns(2)
-            for i, m in enumerate(matchs_du_jour):
-                with cols[i % 2]:
-                    with st.container(border=True):
-                        stats = calculer_tendance(m['id'], df_stats)
-                        if stats:
-                            st.caption(f"📊 Tendance : {m['eqA']} {stats['A']}% - Nul {stats['N']}% - {m['eqB']} {stats['B']}%")
-                        else:
-                            st.caption(f"🕑 {m['heure']} - {m['groupe']}")
-                        
-                        st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
-                        c1, c2 = st.columns(2)
-                        pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
-                        pb = c2.number_input(f"{m['eqB']}", 0, 10, key=f"B_{m['id']}")
-                        saisies[m['id']] = (pa, pb)
-            st.divider()
-        
-        st.write("")
-        valider = st.form_submit_button("Valider et Enregistrer", use_container_width=True)
-    
-    if valider:
-        if not nom_prenom or not email:
-            st.error("⚠️ Il faut ton Nom/Prénom ET un email !")
-        else:
-            df = charger_donnees()
-            col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
-            noms_existants = []
-            if not df.empty and col_nom in df.columns:
-                noms_existants = df[col_nom].astype(str).values 
+        with st.form("grille_pronos"):
+            col_p, col_e = st.columns(2)
+            nom_prenom = col_p.text_input("Ton Nom et Prénom (Obligatoire) :")
+            email = col_e.text_input("Ton Email (Pour les résultats) :")
+
+            saisies = {}
+            MATCHS.sort(key=lambda x: x['date'])
+            dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
             
-            if nom_prenom in noms_existants:
-                st.warning(f"Attention, {nom_prenom} a déjà joué ! Modifie le nom si c'est un homonyme.")
+            def formater_date(d_str):
+                obj = datetime.strptime(d_str, "%Y-%m-%d")
+                jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+                mois = ["Jan", "Fév", "Mars", "Avril", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]
+                return f"{jours[obj.weekday()]} {obj.day} {mois[obj.month-1]}"
+
+            for d in dates_uniques:
+                st.markdown(f"### 🗓️ {formater_date(d)}")
+                matchs_du_jour = [m for m in MATCHS if m['date'] == d]
+                cols = st.columns(2)
+                for i, m in enumerate(matchs_du_jour):
+                    with cols[i % 2]:
+                        with st.container(border=True):
+                            stats = calculer_tendance(m['id'], df_stats)
+                            if stats:
+                                st.caption(f"📊 Tendance : {m['eqA']} {stats['A']}% - Nul {stats['N']}% - {m['eqB']} {stats['B']}%")
+                            else:
+                                st.caption(f"🕑 {m['heure']} - {m['groupe']}")
+                            
+                            st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
+                            c1, c2 = st.columns(2)
+                            pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
+                            pb = c2.number_input(f"{m['eqB']}", 0, 10, key=f"B_{m['id']}")
+                            saisies[m['id']] = (pa, pb)
+                st.divider()
+            
+            st.write("")
+            valider = st.form_submit_button("Valider et Enregistrer", use_container_width=True)
+        
+        if valider:
+            if not nom_prenom or not email:
+                st.error("⚠️ Il faut ton Nom/Prénom ET un email !")
             else:
-                with st.spinner("Envoi..."):
-                    liste_a_envoyer = []
-                    for mid, (sa, sb) in saisies.items():
-                        liste_a_envoyer.append((mid, sa, sb))
-                    sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
-                st.success(f"✅ C'est enregistré {nom_prenom} !")
-                st.balloons()
+                df = charger_donnees()
+                col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
+                noms_existants = []
+                if not df.empty and col_nom in df.columns:
+                    noms_existants = df[col_nom].astype(str).values 
+                
+                if nom_prenom in noms_existants:
+                    st.warning(f"Attention, {nom_prenom} a déjà joué ! Modifie le nom si c'est un homonyme.")
+                else:
+                    with st.spinner("Envoi..."):
+                        liste_a_envoyer = []
+                        for mid, (sa, sb) in saisies.items():
+                            liste_a_envoyer.append((mid, sa, sb))
+                        sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
+                    st.success(f"✅ C'est enregistré {nom_prenom} !")
+                    st.balloons()
+    else:
+        st.error("⛔️ Les pronostics sont fermés ! La compétition a commencé.")
+        st.info("Tu peux toujours consulter ton classement et les résultats dans les autres onglets.")
 
 with tab2:
     st.header("📜 Règlement du Concours")
