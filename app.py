@@ -13,10 +13,12 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 20:00"
+DERNIERE_MAJ = "08/12/2025 à 21:00"
 
-# --- CONNEXION GOOGLE SHEETS ---
-def connect_to_gsheets():
+# --- CONNEXION GOOGLE SHEETS (OPTIMISÉE) ---
+# On met en cache la connexion pour ne pas se reconnecter à chaque clic
+@st.cache_resource
+def get_google_sheet_client():
     try:
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         if "gcp_service_account" not in st.secrets:
@@ -25,10 +27,18 @@ def connect_to_gsheets():
         creds_dict = json.loads(json_info)
         creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
         client = gspread.authorize(creds)
-        sheet = client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
-        return sheet
+        return client
     except Exception as e:
         return None
+
+def connect_to_gsheets():
+    client = get_google_sheet_client()
+    if client:
+        try:
+            return client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
+        except:
+            return None
+    return None
 
 # --- LISTE DES MATCHS ---
 MATCHS = [
@@ -103,8 +113,10 @@ MATCHS = [
     {"id": 72, "date": "2026-06-28", "heure": "23h", "groupe": "Groupe L", "eqA": "🇭🇷 Croatie", "eqB": "🇬🇭 Ghana", "scA": None, "scB": None},
 ]
 
-# --- FONCTIONS ROBUSTES ---
+# --- FONCTIONS ROBUSTES AVEC CACHE ---
+@st.cache_data(ttl=60) # On ne recharge les données que toutes les 60 secondes max
 def charger_donnees():
+    """Charge les données en gérant les anciens formats (Pseudo vs Nom)"""
     try:
         sheet = connect_to_gsheets()
         if sheet is None: 
@@ -133,6 +145,8 @@ def sauvegarder_tout(nom_prenom, email, liste_pronos):
     for (match_id, pa, pb) in liste_pronos:
         lignes_a_ajouter.append([nom_prenom, email, match_id, pa, pb])
     sheet.append_rows(lignes_a_ajouter)
+    # On vide le cache après sauvegarde pour voir les résultats tout de suite
+    charger_donnees.clear()
 
 def calculer_points(prono_a, prono_b, reel_a, reel_b):
     if reel_a is None: return 0 
