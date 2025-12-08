@@ -13,17 +13,18 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 19:00"
+DERNIERE_MAJ = "08/12/2025 à 20:00"
 
 # --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
     try:
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        if "gcp_service_account" not in st.secrets:
+            return None
         json_info = st.secrets["gcp_service_account"]["json_file"]
         creds_dict = json.loads(json_info)
         creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
         client = gspread.authorize(creds)
-        # Ta clé spécifique
         sheet = client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
         return sheet
     except Exception as e:
@@ -31,104 +32,69 @@ def connect_to_gsheets():
 
 # --- LISTE DES MATCHS ---
 MATCHS = [
-    # --- JEUDI 11 JUIN ---
     {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
-    
-    # --- VENDREDI 12 JUIN ---
     {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🏳️ Barragiste D", "scA": None, "scB": None},
     {"id": 7, "date": "2026-06-12", "heure": "21h", "groupe": "Groupe B", "eqA": "🇨🇦 Canada", "eqB": "🏳️ Barragiste A", "scA": None, "scB": None},
-
-    # --- SAMEDI 13 JUIN ---
     {"id": 19, "date": "2026-06-13", "heure": "03h", "groupe": "Groupe D", "eqA": "🇺🇸 USA", "eqB": "🇵🇾 Paraguay", "scA": None, "scB": None},
     {"id": 20, "date": "2026-06-13", "heure": "06h", "groupe": "Groupe D", "eqA": "🇦🇺 Australie", "eqB": "🏳️ Barragiste C", "scA": None, "scB": None},
     {"id": 8, "date": "2026-06-13", "heure": "21h", "groupe": "Groupe B", "eqA": "🇶🇦 Qatar", "eqB": "🇨🇭 Suisse", "scA": None, "scB": None},
-
-    # --- DIMANCHE 14 JUIN ---
     {"id": 37, "date": "2026-06-14", "heure": "21h", "groupe": "Groupe G", "eqA": "🇧🇪 Belgique", "eqB": "🇪🇬 Égypte", "scA": None, "scB": None},
     {"id": 31, "date": "2026-06-14", "heure": "22h", "groupe": "Groupe F", "eqA": "🇳🇱 Pays-Bas", "eqB": "🇯🇵 Japon", "scA": None, "scB": None},
     {"id": 14, "date": "2026-06-14", "heure": "03h", "groupe": "Groupe C", "eqA": "🇭🇹 Haïti", "eqB": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "scA": None, "scB": None},
-
-    # --- LUNDI 15 JUIN ---
     {"id": 13, "date": "2026-06-15", "heure": "00h", "groupe": "Groupe C", "eqA": "🇧🇷 Brésil", "eqB": "🇲🇦 Maroc", "scA": None, "scB": None},
     {"id": 38, "date": "2026-06-15", "heure": "03h", "groupe": "Groupe G", "eqA": "🇮🇷 Iran", "eqB": "🇳🇿 Nv-Zélande", "scA": None, "scB": None},
     {"id": 25, "date": "2026-06-15", "heure": "19h", "groupe": "Groupe E", "eqA": "🇩🇪 Allemagne", "eqB": "🇨🇼 Curaçao", "scA": None, "scB": None},
     {"id": 26, "date": "2026-06-15", "heure": "01h", "groupe": "Groupe E", "eqA": "🇨🇮 Côte d'Ivoire", "eqB": "🇪🇨 Équateur", "scA": None, "scB": None},
-
-    # --- MARDI 16 JUIN ---
     {"id": 55, "date": "2026-06-16", "heure": "18h", "groupe": "Groupe J", "eqA": "🇦🇷 Argentine", "eqB": "🇩🇿 Algérie", "scA": None, "scB": None},
     {"id": 56, "date": "2026-06-16", "heure": "06h", "groupe": "Groupe J", "eqA": "🇦🇹 Autriche", "eqB": "🇯🇴 Jordanie", "scA": None, "scB": None},
     {"id": 61, "date": "2026-06-16", "heure": "19h", "groupe": "Groupe K", "eqA": "🇵🇹 Portugal", "eqB": "🏳️ Barragiste 1", "scA": None, "scB": None},
-
-    # --- MERCREDI 17 JUIN ---
     {"id": 62, "date": "2026-06-17", "heure": "04h", "groupe": "Groupe K", "eqA": "🇺🇿 Ouzbékistan", "eqB": "🇨🇴 Colombie", "scA": None, "scB": None},
     {"id": 67, "date": "2026-06-17", "heure": "22h", "groupe": "Groupe L", "eqA": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", "eqB": "🇭🇷 Croatie", "scA": None, "scB": None},
     {"id": 68, "date": "2026-06-17", "heure": "01h", "groupe": "Groupe L", "eqA": "🇬🇭 Ghana", "eqB": "🇵🇦 Panama", "scA": None, "scB": None},
     {"id": 10, "date": "2026-06-17", "heure": "21h", "groupe": "Groupe B", "eqA": "🏳️ Barragiste A", "eqB": "🇨🇭 Suisse", "scA": None, "scB": None},
-
-    # --- JEUDI 18 JUIN ---
     {"id": 3, "date": "2026-06-18", "heure": "03h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇰🇷 Corée du Sud", "scA": None, "scB": None},
     {"id": 43, "date": "2026-06-18", "heure": "18h", "groupe": "Groupe H", "eqA": "🇪🇸 Espagne", "eqB": "🇨🇻 Cap-Vert", "scA": None, "scB": None},
     {"id": 44, "date": "2026-06-18", "heure": "00h", "groupe": "Groupe H", "eqA": "🇸🇦 Arabie Saoudite", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
-
-    # --- VENDREDI 19 JUIN ---
     {"id": 4, "date": "2026-06-19", "heure": "06h", "groupe": "Groupe A", "eqA": "🇿🇦 Afrique Sud", "eqB": "🏳️ Barragiste D", "scA": None, "scB": None},
     {"id": 9, "date": "2026-06-19", "heure": "00h", "groupe": "Groupe B", "eqA": "🇨🇦 Canada", "eqB": "🇶🇦 Qatar", "scA": None, "scB": None},
     {"id": 21, "date": "2026-06-19", "heure": "21h", "groupe": "Groupe D", "eqA": "🇺🇸 USA", "eqB": "🇦🇺 Australie", "scA": None, "scB": None},
     {"id": 49, "date": "2026-06-19", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🇸🇳 Sénégal", "scA": None, "scB": None},
-    
-    # --- SAMEDI 20 JUIN ---
     {"id": 15, "date": "2026-06-20", "heure": "00h", "groupe": "Groupe C", "eqA": "🇧🇷 Brésil", "eqB": "🇭🇹 Haïti", "scA": None, "scB": None},
     {"id": 16, "date": "2026-06-20", "heure": "00h", "groupe": "Groupe C", "eqA": "🇲🇦 Maroc", "eqB": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "scA": None, "scB": None},
     {"id": 27, "date": "2026-06-20", "heure": "19h", "groupe": "Groupe E", "eqA": "🇩🇪 Allemagne", "eqB": "🇨🇮 Côte d'Ivoire", "scA": None, "scB": None},
     {"id": 39, "date": "2026-06-20", "heure": "21h", "groupe": "Groupe G", "eqA": "🇧🇪 Belgique", "eqB": "🇮🇷 Iran", "scA": None, "scB": None},
-
-    # --- DIMANCHE 21 JUIN ---
     {"id": 28, "date": "2026-06-21", "heure": "02h", "groupe": "Groupe E", "eqA": "🇨🇼 Curaçao", "eqB": "🇪🇨 Équateur", "scA": None, "scB": None},
     {"id": 32, "date": "2026-06-21", "heure": "04h", "groupe": "Groupe F", "eqA": "🏳️ Barragiste B", "eqB": "🇹🇳 Tunisie", "scA": None, "scB": None},
     {"id": 33, "date": "2026-06-21", "heure": "21h", "groupe": "Groupe F", "eqA": "🇳🇱 Pays-Bas", "eqB": "🏳️ Barragiste B", "scA": None, "scB": None},
     {"id": 50, "date": "2026-06-21", "heure": "03h", "groupe": "Groupe I", "eqA": "🏳️ Barragiste 2", "eqB": "🇳🇴 Norvège", "scA": None, "scB": None},
-
-    # --- LUNDI 22 JUIN ---
     {"id": 22, "date": "2026-06-22", "heure": "03h", "groupe": "Groupe D", "eqA": "🇵🇾 Paraguay", "eqB": "🏳️ Barragiste C", "scA": None, "scB": None},
     {"id": 45, "date": "2026-06-22", "heure": "18h", "groupe": "Groupe H", "eqA": "🇪🇸 Espagne", "eqB": "🇸🇦 Arabie Saoudite", "scA": None, "scB": None},
     {"id": 40, "date": "2026-06-22", "heure": "03h", "groupe": "Groupe G", "eqA": "🇪🇬 Égypte", "eqB": "🇳🇿 Nv-Zélande", "scA": None, "scB": None},
     {"id": 57, "date": "2026-06-22", "heure": "18h", "groupe": "Groupe J", "eqA": "🇦🇷 Argentine", "eqB": "🇦🇹 Autriche", "scA": None, "scB": None},
-
-    # --- MARDI 23 JUIN ---
     {"id": 58, "date": "2026-06-23", "heure": "05h", "groupe": "Groupe J", "eqA": "🇩🇿 Algérie", "eqB": "🇯🇴 Jordanie", "scA": None, "scB": None},
     {"id": 63, "date": "2026-06-23", "heure": "19h", "groupe": "Groupe K", "eqA": "🇵🇹 Portugal", "eqB": "🇺🇿 Ouzbékistan", "scA": None, "scB": None},
     {"id": 69, "date": "2026-06-23", "heure": "22h", "groupe": "Groupe L", "eqA": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", "eqB": "🇬🇭 Ghana", "scA": None, "scB": None},
     {"id": 52, "date": "2026-06-23", "heure": "23h", "groupe": "Groupe I", "eqA": "🇸🇳 Sénégal", "eqB": "🇳🇴 Norvège", "scA": None, "scB": None},
-
-    # --- MERCREDI 24 JUIN ---
     {"id": 6, "date": "2026-06-24", "heure": "03h", "groupe": "Groupe A", "eqA": "🇿🇦 Afrique Sud", "eqB": "🇰🇷 Corée du Sud", "scA": None, "scB": None},
     {"id": 11, "date": "2026-06-24", "heure": "21h", "groupe": "Groupe B", "eqA": "🇨🇭 Suisse", "eqB": "🇨🇦 Canada", "scA": None, "scB": None},
     {"id": 12, "date": "2026-06-24", "heure": "21h", "groupe": "Groupe B", "eqA": "🏳️ Barragiste A", "eqB": "🇶🇦 Qatar", "scA": None, "scB": None},
     {"id": 64, "date": "2026-06-24", "heure": "04h", "groupe": "Groupe K", "eqA": "🏳️ Barragiste 1", "eqB": "🇨🇴 Colombie", "scA": None, "scB": None},
-
-    # --- JEUDI 25 JUIN ---
     {"id": 73, "date": "2026-06-25", "heure": "03h", "groupe": "Groupe A", "eqA": "🏳️ Barragiste D", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None},
     {"id": 17, "date": "2026-06-25", "heure": "00h", "groupe": "Groupe C", "eqA": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "eqB": "🇧🇷 Brésil", "scA": None, "scB": None},
     {"id": 18, "date": "2026-06-25", "heure": "00h", "groupe": "Groupe C", "eqA": "🇲🇦 Maroc", "eqB": "🇭🇹 Haïti", "scA": None, "scB": None},
     {"id": 23, "date": "2026-06-25", "heure": "21h", "groupe": "Groupe D", "eqA": "🏳️ Barragiste C", "eqB": "🇺🇸 USA", "scA": None, "scB": None},
     {"id": 24, "date": "2026-06-25", "heure": "21h", "groupe": "Groupe D", "eqA": "🇵🇾 Paraguay", "eqB": "🇦🇺 Australie", "scA": None, "scB": None},
-    
-    # --- VENDREDI 26 JUIN ---
     {"id": 29, "date": "2026-06-26", "heure": "18h", "groupe": "Groupe E", "eqA": "🇪🇨 Équateur", "eqB": "🇩🇪 Allemagne", "scA": None, "scB": None},
     {"id": 30, "date": "2026-06-26", "heure": "18h", "groupe": "Groupe E", "eqA": "🇨🇼 Curaçao", "eqB": "🇨🇮 Côte d'Ivoire", "scA": None, "scB": None},
     {"id": 34, "date": "2026-06-26", "heure": "01h", "groupe": "Groupe F", "eqA": "🇯🇵 Japon", "eqB": "🇹🇳 Tunisie", "scA": None, "scB": None},
     {"id": 35, "date": "2026-06-26", "heure": "01h", "groupe": "Groupe F", "eqA": "🇹🇳 Tunisie", "eqB": "🇳🇱 Pays-Bas", "scA": None, "scB": None},
     {"id": 36, "date": "2026-06-26", "heure": "01h", "groupe": "Groupe F", "eqA": "🇯🇵 Japon", "eqB": "🏳️ Barragiste B", "scA": None, "scB": None},
-    
-    # --- SAMEDI 27 JUIN ---
     {"id": 41, "date": "2026-06-27", "heure": "05h", "groupe": "Groupe G", "eqA": "🇳🇿 Nv-Zélande", "eqB": "🇧🇪 Belgique", "scA": None, "scB": None},
     {"id": 42, "date": "2026-06-27", "heure": "05h", "groupe": "Groupe G", "eqA": "🇪🇬 Égypte", "eqB": "🇮🇷 Iran", "scA": None, "scB": None},
     {"id": 46, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇨🇻 Cap-Vert", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
     {"id": 47, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇺🇾 Uruguay", "eqB": "🇪🇸 Espagne", "scA": None, "scB": None},
     {"id": 51, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🏳️ Barragiste 2", "scA": None, "scB": None},
     {"id": 53, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇳🇴 Norvège", "eqB": "🇫🇷 France", "scA": None, "scB": None},
-
-    # --- DIMANCHE 28 JUIN ---
     {"id": 59, "date": "2026-06-28", "heure": "04h", "groupe": "Groupe J", "eqA": "🇯🇴 Jordanie", "eqB": "🇦🇷 Argentine", "scA": None, "scB": None},
     {"id": 60, "date": "2026-06-28", "heure": "04h", "groupe": "Groupe J", "eqA": "🇩🇿 Algérie", "eqB": "🇦🇹 Autriche", "scA": None, "scB": None},
     {"id": 65, "date": "2026-06-28", "heure": "01h", "groupe": "Groupe K", "eqA": "🇨🇴 Colombie", "eqB": "🇵🇹 Portugal", "scA": None, "scB": None},
@@ -139,7 +105,6 @@ MATCHS = [
 
 # --- FONCTIONS ROBUSTES ---
 def charger_donnees():
-    """Charge les données en gérant les anciens formats (Pseudo vs Nom)"""
     try:
         sheet = connect_to_gsheets()
         if sheet is None: 
@@ -151,17 +116,14 @@ def charger_donnees():
         
         df = pd.DataFrame(data)
         
-        # Réparation automatique : Si on trouve "Pseudo" mais pas "Nom et Prénom", on renomme
+        # Réparation automatique
         if "Pseudo" in df.columns and "Nom et Prénom" not in df.columns:
             df.rename(columns={"Pseudo": "Nom et Prénom"}, inplace=True)
-            
-        # Si la colonne Email n'existe pas encore dans le fichier, on l'ajoute vide
         if "Email" not in df.columns:
             df["Email"] = ""
             
         return df
     except Exception as e:
-        st.error(f"Erreur chargement: {e}")
         return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
 
 def sauvegarder_tout(nom_prenom, email, liste_pronos):
@@ -169,8 +131,6 @@ def sauvegarder_tout(nom_prenom, email, liste_pronos):
     if sheet is None: return
     lignes_a_ajouter = []
     for (match_id, pa, pb) in liste_pronos:
-        # On insère les données. L'ordre dépend de ton fichier Excel.
-        # Idéalement: Colonne A=Nom, B=Email, C=Match_ID...
         lignes_a_ajouter.append([nom_prenom, email, match_id, pa, pb])
     sheet.append_rows(lignes_a_ajouter)
 
@@ -223,41 +183,57 @@ def calculer_classement_groupe(nom_groupe):
 
 # --- INTERFACE ---
 
-# 2. Barre Latérale
+# 2. Barre Latérale (Sidebar) - Avec Top 10 Calculé
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/FIFA_World_Cup_2026_Logo.svg/1024px-FIFA_World_Cup_2026_Logo.svg.png", width=200)
     st.title("⚽ Mondial 2026")
-    st.info("Bienvenue sur l'app de pronostics !")
     
     st.markdown("---")
-    st.write("### 📜 Les Règles")
-    st.info("👋 **Victoire / Défaite**")
-    st.write("* **1 pt** : Bon vainqueur")
-    st.write("* **3 pts** : Score exact")
-    st.info("🤝 **Match Nul**")
-    st.write("* **1 pt** : Nul trouvé (ex: 1-1 vs 0-0)")
-    st.write("* **3 pts** : Nul exact (ex: 2-2 vs 2-2)")
+    st.write("### 🏆 Top 10 Actuel")
     
-    st.markdown("---")
-    st.write(f"🕒 **Dernière mise à jour :**\n\n`{DERNIERE_MAJ}`")
+    # CALCUL DU TOP 10 EN DIRECT
+    try:
+        df_top = charger_donnees()
+        if not df_top.empty and "Nom et Prénom" in df_top.columns:
+            scores_live = {}
+            joueurs_live = df_top['Nom et Prénom'].unique()
+            for j in joueurs_live:
+                pts = 0
+                pronos_j = df_top[df_top['Nom et Prénom'] == j]
+                for m in MATCHS:
+                    pari = pronos_j[pronos_j.Match_ID == m['id']]
+                    if not pari.empty and m['scA'] is not None:
+                        try:
+                            pts += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'])
+                        except: pass
+                scores_live[j] = pts
+            
+            if scores_live:
+                # Création du classement
+                df_rank_live = pd.DataFrame(list(scores_live.items()), columns=["Joueur", "Pts"])
+                df_rank_live = df_rank_live.sort_values(by="Pts", ascending=False).reset_index(drop=True)
+                df_rank_live.index += 1
+                # Affichage des 10 premiers uniquement
+                st.table(df_rank_live.head(10))
+            else:
+                st.write("En attente de points...")
+        else:
+            st.write("Chargement...")
+    except:
+        st.write("...")
 
     st.markdown("---")
+    st.write(f"🕒 **MàJ :** `{DERNIERE_MAJ}`")
     try:
-        df_count = charger_donnees()
-        # Sécurité pour le comptage
-        col_nom = "Nom et Prénom" if "Nom et Prénom" in df_count.columns else "Pseudo"
-        if col_nom in df_count.columns:
-            nb_joueurs = len(df_count[col_nom].unique())
-        else:
-            nb_joueurs = 0
-        st.metric("Joueurs inscrits", nb_joueurs)
-    except:
-        pass
+        nb_joueurs = len(df_top['Nom et Prénom'].unique()) if not df_top.empty else 0
+        st.caption(f"{nb_joueurs} joueurs inscrits")
+    except: pass
 
 
 st.title("🏆 Faites vos Jeux !")
 
-tab1, tab2, tab3, tab4 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Classement des Groupes", "👀 Mes Paris"])
+# NOUVEAU MENU AVEC ONGLET REGLEMENT
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📝 Pronostics", "📜 Règlement", "📊 Classement Complet", "🌍 Groupes", "👀 Mes Paris"])
 
 with tab1:
     st.write("### 📅 Le Calendrier")
@@ -266,7 +242,7 @@ with tab1:
             connect_to_gsheets()
             st.session_state["google_ok"] = True
     except Exception as e:
-        st.error(f"⚠️ Erreur de connexion Google. Vérifie tes 'Secrets'. Détail: {e}")
+        st.error(f"⚠️ Erreur: {e}")
     
     with st.form("grille_pronos"):
         col_p, col_e = st.columns(2)
@@ -274,7 +250,6 @@ with tab1:
         email = col_e.text_input("Ton Email (Pour les résultats) :")
 
         saisies = {}
-        
         MATCHS.sort(key=lambda x: x['date'])
         dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
         
@@ -287,7 +262,6 @@ with tab1:
         for d in dates_uniques:
             st.markdown(f"### 🗓️ {formater_date(d)}")
             matchs_du_jour = [m for m in MATCHS if m['date'] == d]
-            
             cols = st.columns(2)
             for i, m in enumerate(matchs_du_jour):
                 with cols[i % 2]:
@@ -308,7 +282,6 @@ with tab1:
             st.error("⚠️ Il faut ton Nom/Prénom ET un email !")
         else:
             df = charger_donnees()
-            # Sécurité colonne
             col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
             noms_existants = []
             if not df.empty and col_nom in df.columns:
@@ -317,23 +290,43 @@ with tab1:
             if nom_prenom in noms_existants:
                 st.warning(f"Attention, {nom_prenom} a déjà joué ! Modifie le nom si c'est un homonyme.")
             else:
-                with st.spinner("Envoi de tes pronostics..."):
+                with st.spinner("Envoi..."):
                     liste_a_envoyer = []
                     for mid, (sa, sb) in saisies.items():
                         liste_a_envoyer.append((mid, sa, sb))
-                    sauvegarder_tout(nom_prenom, email, liste_a_envoyer)
-                    
-                st.success(f"✅ C'est enregistré {nom_prenom} ! On t'enverra les résultats sur {email}.")
+                    sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
+                st.success(f"✅ C'est enregistré {nom_prenom} !")
                 st.balloons()
 
 with tab2:
-    st.write("### 🥇 Le Podium")
+    st.header("📜 Règlement du Concours")
+    st.markdown("""
+    ### 🎯 Calcul des Points
+    
+    * **3 Points** : Score Exact
+        * *Exemple : Tu as pronostiqué 2-1 et le match finit 2-1.*
+    * **1 Point** : Bon Résultat (mais mauvais score)
+        * *Exemple : Tu as pronostiqué 1-0 et le match finit 3-0 (Tu as trouvé le vainqueur).*
+        * *Exemple : Tu as pronostiqué 1-1 et le match finit 0-0 (Tu as trouvé le match nul).*
+    * **0 Point** : Mauvais Résultat
+    
+    ---
+    ### 🏆 Lots et Gains
+    *(À compléter ici plus tard : Prix pour le premier, le deuxième, etc.)*
+    
+    ---
+    ### ⚠️ Autres règles
+    * Les pronostics doivent être validés avant le coup d'envoi.
+    * En cas d'égalité de points à la fin, le nombre de "Scores Exacts" départagera les joueurs.
+    """)
+
+with tab3:
+    st.write("### 📊 Classement Général Complet")
     df = charger_donnees()
     if df.empty:
         st.info("Personne n'a encore parié.")
     else:
         scores_joueurs = {}
-        # Gestion sécurité colonne
         col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
         if col_nom in df.columns:
             joueurs = df[col_nom].unique()
@@ -352,17 +345,12 @@ with tab2:
                 df_rank = pd.DataFrame(list(scores_joueurs.items()), columns=["Joueur", "Points"])
                 df_rank = df_rank.sort_values(by="Points", ascending=False).reset_index(drop=True)
                 df_rank.index += 1
-                st.dataframe(df_rank, use_container_width=True, height=500)
-        else:
-            st.error("Colonne 'Nom et Prénom' introuvable.")
+                st.dataframe(df_rank, use_container_width=True, height=600)
 
-with tab3:
+with tab4:
     st.header("🌍 Classement des Groupes")
-    st.info("Ce classement est calculé automatiquement selon les résultats réels.")
-    
     groupes = sorted(list(set(m['groupe'] for m in MATCHS)))
     cols = st.columns(2)
-    
     for i, grp in enumerate(groupes):
         with cols[i % 2]: 
             with st.container(border=True):
@@ -370,37 +358,28 @@ with tab3:
                 df_classement = calculer_classement_groupe(grp)
                 st.dataframe(df_classement, use_container_width=True)
 
-with tab4:
+with tab5:
     st.header("🔍 Retrouver mes pronostics")
-    st.write("Entre ton nom exact pour voir ce que tu as joué.")
-    
-    nom_search = st.text_input("Ton Nom et Prénom :")
-    
+    nom_search = st.text_input("Entre ton Nom exact :")
     if nom_search:
         df = charger_donnees()
-        # Gestion sécurité colonne
         col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
-        
         if not df.empty and col_nom in df.columns and nom_search in df[col_nom].values:
             mes_pronos = df[df[col_nom] == nom_search]
-            
             data_affichage = []
             for m in MATCHS:
                 ligne_prono = mes_pronos[mes_pronos['Match_ID'] == m['id']]
                 if not ligne_prono.empty:
                     pa = ligne_prono.iloc[0]['Prono_A']
                     pb = ligne_prono.iloc[0]['Prono_B']
-                    # On affiche le match et le prono
                     data_affichage.append({
                         "Date": m['date'],
                         "Match": f"{m['eqA']} vs {m['eqB']}",
                         "Mon Prono": f"{pa} - {pb}"
                     })
-            
             if data_affichage:
-                df_show = pd.DataFrame(data_affichage)
-                st.table(df_show)
+                st.table(pd.DataFrame(data_affichage))
             else:
-                st.warning("Aucun pronostic trouvé pour ce nom.")
+                st.warning("Rien trouvé.")
         else:
-            st.info("Nom introuvable ou pas encore joué.")
+            st.info("Nom inconnu.")
