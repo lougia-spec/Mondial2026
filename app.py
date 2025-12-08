@@ -8,16 +8,21 @@ from oauth2client.service_account import ServiceAccountCredentials
 st.set_page_config(page_title="Mondial 2026", page_icon="⚽", layout="centered")
 
 # --- CONNEXION GOOGLE SHEETS (VERSION FACILE) ---
+# --- CONNEXION GOOGLE SHEETS ---
 def connect_to_gsheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     
-    # C'est ici que ça change : on lit le texte brut
+    # On récupère le fichier secret
     json_info = st.secrets["gcp_service_account"]["json_file"]
     creds_dict = json.loads(json_info)
     
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
-    sheet = client.open("pronostics_db").sheet1
+    
+    # MODIFICATION ICI : Remplace la clé ci-dessous par LA TIENNE que tu as copiée
+    # Exemple : client.open_by_key("1BxiM-AbcDeFgHiJkLmNoPqRsTvUwXYz").sheet1
+    sheet = client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
+    
     return sheet
 
 # --- LISTE DES MATCHS ---
