@@ -162,7 +162,6 @@ def calculer_points(prono_a, prono_b, reel_a, reel_b):
     except:
         return 0
     points = 0
-    # C'EST ICI QUE C'ETAIT COUPE : VOICI LA SUITE CORRECTE
     res_reel = 1 if ra > rb else (2 if rb > ra else 0)
     res_prono = 1 if pa > pb else (2 if pb > pa else 0)
     if res_reel == res_prono:
