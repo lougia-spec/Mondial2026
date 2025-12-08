@@ -65,7 +65,7 @@ MATCHS = [
 
     # --- JEUDI 18 JUIN ---
     {"id": 3, "date": "2026-06-18", "heure": "03h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇰🇷 Corée du Sud", "scA": None, "scB": None},
-    {"id": 5, "date": "2026-06-18", "heure": "18h", "groupe": "Groupe A", "eqA": "🏳️ Barragiste D", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None}, # Note: Ajustement possible selon calendrier
+    {"id": 5, "date": "2026-06-18", "heure": "18h", "groupe": "Groupe A", "eqA": "🏳️ Barragiste D", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None},
     {"id": 43, "date": "2026-06-18", "heure": "18h", "groupe": "Groupe H", "eqA": "🇪🇸 Espagne", "eqB": "🇨🇻 Cap-Vert", "scA": None, "scB": None},
     {"id": 44, "date": "2026-06-18", "heure": "00h", "groupe": "Groupe H", "eqA": "🇸🇦 Arabie Saoudite", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
 
@@ -106,7 +106,7 @@ MATCHS = [
     {"id": 64, "date": "2026-06-24", "heure": "04h", "groupe": "Groupe K", "eqA": "🏳️ Barragiste 1", "eqB": "🇨🇴 Colombie", "scA": None, "scB": None},
 
     # --- JEUDI 25 JUIN ---
-    {"id": 5, "date": "2026-06-25", "heure": "03h", "groupe": "Groupe A", "eqA": "🏳️ Barragiste D", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None}, # Le retour des matchs
+    {"id": 5, "date": "2026-06-25", "heure": "03h", "groupe": "Groupe A", "eqA": "🏳️ Barragiste D", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None},
     {"id": 17, "date": "2026-06-25", "heure": "00h", "groupe": "Groupe C", "eqA": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "eqB": "🇧🇷 Brésil", "scA": None, "scB": None},
     {"id": 18, "date": "2026-06-25", "heure": "00h", "groupe": "Groupe C", "eqA": "🇲🇦 Maroc", "eqB": "🇭🇹 Haïti", "scA": None, "scB": None},
     {"id": 23, "date": "2026-06-25", "heure": "21h", "groupe": "Groupe D", "eqA": "🏳️ Barragiste C", "eqB": "🇺🇸 USA", "scA": None, "scB": None},
@@ -116,7 +116,7 @@ MATCHS = [
     {"id": 29, "date": "2026-06-26", "heure": "18h", "groupe": "Groupe E", "eqA": "🇪🇨 Équateur", "eqB": "🇩🇪 Allemagne", "scA": None, "scB": None},
     {"id": 30, "date": "2026-06-26", "heure": "18h", "groupe": "Groupe E", "eqA": "🇨🇼 Curaçao", "eqB": "🇨🇮 Côte d'Ivoire", "scA": None, "scB": None},
     {"id": 34, "date": "2026-06-26", "heure": "01h", "groupe": "Groupe F", "eqA": "🇯🇵 Japon", "eqB": "🇹🇳 Tunisie", "scA": None, "scB": None},
-    {"id": 35, "date": "2026-06-26", "heure": "01h", "groupe": "Groupe F", "eqA": "🇹🇳 Tunisie", "eqB": "🇳🇱 Pays-Bas", "scA": None, "scB": None}, # Doublon date
+    {"id": 35, "date": "2026-06-26", "heure": "01h", "groupe": "Groupe F", "eqA": "🇹🇳 Tunisie", "eqB": "🇳🇱 Pays-Bas", "scA": None, "scB": None},
     {"id": 36, "date": "2026-06-26", "heure": "01h", "groupe": "Groupe F", "eqA": "🇯🇵 Japon", "eqB": "🏳️ Barragiste B", "scA": None, "scB": None},
     
     # --- SAMEDI 27 JUIN ---
@@ -125,7 +125,7 @@ MATCHS = [
     {"id": 46, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇨🇻 Cap-Vert", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
     {"id": 47, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇺🇾 Uruguay", "eqB": "🇪🇸 Espagne", "scA": None, "scB": None},
     {"id": 51, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🏳️ Barragiste 2", "scA": None, "scB": None},
-    {"id": 53, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇳🇴 Norvège", "eqB": "🇫🇷 France", "scA": None, "scB": None}, # Ajustement
+    {"id": 53, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇳🇴 Norvège", "eqB": "🇫🇷 France", "scA": None, "scB": None},
 
     # --- DIMANCHE 28 JUIN ---
     {"id": 59, "date": "2026-06-28", "heure": "04h", "groupe": "Groupe J", "eqA": "🇯🇴 Jordanie", "eqB": "🇦🇷 Argentine", "scA": None, "scB": None},
@@ -162,4 +162,144 @@ def calculer_points(prono_a, prono_b, reel_a, reel_b):
     except:
         return 0
     points = 0
-    res_reel =
+    # C'EST ICI QUE C'ETAIT COUPE : VOICI LA SUITE CORRECTE
+    res_reel = 1 if ra > rb else (2 if rb > ra else 0)
+    res_prono = 1 if pa > pb else (2 if pb > pa else 0)
+    if res_reel == res_prono:
+        points += 1
+        if pa == ra and pb == rb:
+            points += 2
+    return points
+
+# --- INTERFACE ---
+
+# 1. Bannière
+st.image("https://images.unsplash.com/photo-1522778119026-d647f0565c6a?q=80&w=2070&auto=format&fit=crop", use_container_width=True)
+
+# 2. Barre Latérale
+with st.sidebar:
+    st.title("⚽ Mondial 2026")
+    st.info("Bienvenue sur l'app de pronostics !")
+    
+    st.markdown("---")
+    st.write("### 📜 Les Règles")
+    st.success("✅ **1 Point** : Bon vainqueur")
+    st.success("🎯 **3 Points** : Score Exact")
+    
+    st.markdown("---")
+    st.write(f"🕒 **Dernière mise à jour :**\n\n`{DERNIERE_MAJ}`")
+
+    st.markdown("---")
+    try:
+        df_count = charger_donnees()
+        nb_joueurs = len(df_count['Pseudo'].unique()) if not df_count.empty else 0
+        st.metric("Joueurs inscrits", nb_joueurs)
+    except:
+        pass
+
+
+st.title("🏆 Faites vos Jeux !")
+
+tab1, tab2, tab3 = st.tabs(["📝 Pronostics", "📊 Classement", "🌍 Les Groupes"])
+
+with tab1:
+    st.write("### 📅 Le Calendrier")
+    try:
+        if "google_ok" not in st.session_state:
+            connect_to_gsheets()
+            st.session_state["google_ok"] = True
+    except Exception as e:
+        st.error(f"⚠️ Erreur de connexion Google. Vérifie tes 'Secrets'. Détail: {e}")
+    
+    with st.form("grille_pronos"):
+        pseudo = st.text_input("Ton Pseudo (Obligatoire) :")
+        saisies = {}
+        
+        # --- TRI CHRONOLOGIQUE ---
+        MATCHS.sort(key=lambda x: x['date'])
+        dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
+        
+        def formater_date(d_str):
+            obj = datetime.strptime(d_str, "%Y-%m-%d")
+            jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+            mois = ["Jan", "Fév", "Mars", "Avril", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]
+            return f"{jours[obj.weekday()]} {obj.day} {mois[obj.month-1]}"
+
+        for d in dates_uniques:
+            st.markdown(f"### 🗓️ {formater_date(d)}")
+            matchs_du_jour = [m for m in MATCHS if m['date'] == d]
+            
+            # On affiche les matchs du jour en 2 colonnes
+            cols = st.columns(2)
+            for i, m in enumerate(matchs_du_jour):
+                with cols[i % 2]:
+                    with st.container(border=True):
+                        st.caption(f"🕑 {m['heure']} - {m['groupe']}")
+                        st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
+                        c1, c2 = st.columns(2)
+                        pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
+                        pb = c2.number_input(f"{m['eqB']}", 0, 10, key=f"B_{m['id']}")
+                        saisies[m['id']] = (pa, pb)
+            st.divider()
+        
+        st.write("")
+        valider = st.form_submit_button("Valider et Enregistrer", use_container_width=True)
+    
+    if valider:
+        if not pseudo:
+            st.error("⚠️ Il faut un pseudo !")
+        else:
+            df = charger_donnees()
+            pseudos_existants = df['Pseudo'].astype(str).values if not df.empty else []
+            if pseudo in pseudos_existants:
+                st.warning(f"Le pseudo {pseudo} a déjà joué ! Modifie-le ou contacte l'admin.")
+            else:
+                with st.spinner("Envoi de tes pronostics au siège de la FIFA..."):
+                    liste_a_envoyer = []
+                    for mid, (sa, sb) in saisies.items():
+                        liste_a_envoyer.append((mid, sa, sb))
+                    sauvegarder_tout(pseudo, liste_a_envoyer)
+                    
+                st.success(f"✅ C'est enregistré {pseudo} ! Bonne chance 🍀")
+                st.balloons()
+
+with tab2:
+    st.write("### 🥇 Le Podium")
+    df = charger_donnees()
+    if df.empty:
+        st.info("Personne n'a encore parié.")
+    else:
+        scores_joueurs = {}
+        joueurs = df['Pseudo'].unique()
+        for j in joueurs:
+            pts = 0
+            pronos_j = df[df.Pseudo == j]
+            for m in MATCHS:
+                pari = pronos_j[pronos_j.Match_ID == m['id']]
+                if not pari.empty and m['scA'] is not None:
+                    try:
+                        pts += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'])
+                    except: pass
+            scores_joueurs[j] = pts
+        
+        if scores_joueurs:
+            df_rank = pd.DataFrame(list(scores_joueurs.items()), columns=["Joueur", "Points"])
+            df_rank = df_rank.sort_values(by="Points", ascending=False).reset_index(drop=True)
+            df_rank.index += 1
+            st.dataframe(df_rank, use_container_width=True, height=500)
+
+with tab3:
+    st.header("🌍 Les Équipes par Groupe")
+    groupes = sorted(list(set(m['groupe'] for m in MATCHS)))
+    cols = st.columns(3) 
+    for i, grp in enumerate(groupes):
+        with cols[i % 3]: 
+            with st.container(border=True):
+                st.subheader(grp)
+                equipes_du_groupe = set()
+                matchs_du_groupe = [m for m in MATCHS if m['groupe'] == grp]
+                for m in matchs_du_groupe:
+                    equipes_du_groupe.add(m['eqA'])
+                    equipes_du_groupe.add(m['eqB'])
+                for equipe in sorted(list(equipes_du_groupe)):
+                    st.write(f"🛡️ {equipe}")
