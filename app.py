@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 21:30"
+DERNIERE_MAJ = "08/12/2025 à 22:00"
 
 # --- CONNEXION GOOGLE SHEETS (OPTIMISÉE) ---
 @st.cache_resource
@@ -126,7 +126,6 @@ def charger_donnees():
         
         df = pd.DataFrame(data)
         
-        # Réparation automatique
         if "Pseudo" in df.columns and "Nom et Prénom" not in df.columns:
             df.rename(columns={"Pseudo": "Nom et Prénom"}, inplace=True)
         if "Email" not in df.columns:
@@ -143,7 +142,6 @@ def sauvegarder_tout(nom_prenom, email, liste_pronos):
     for (match_id, pa, pb) in liste_pronos:
         lignes_a_ajouter.append([nom_prenom, email, match_id, pa, pb])
     sheet.append_rows(lignes_a_ajouter)
-    # On vide le cache après sauvegarde
     charger_donnees.clear()
 
 def calculer_points(prono_a, prono_b, reel_a, reel_b):
@@ -195,7 +193,6 @@ def calculer_classement_groupe(nom_groupe):
 
 # --- INTERFACE ---
 
-# 2. Barre Latérale (Sidebar) - Avec Top 10 Calculé
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/FIFA_World_Cup_2026_Logo.svg/1024px-FIFA_World_Cup_2026_Logo.svg.png", width=200)
     st.title("⚽ Mondial 2026")
@@ -203,7 +200,6 @@ with st.sidebar:
     st.markdown("---")
     st.write("### 🏆 Top 10 Actuel")
     
-    # CALCUL DU TOP 10 EN DIRECT
     try:
         df_top = charger_donnees()
         if not df_top.empty and "Nom et Prénom" in df_top.columns:
@@ -242,7 +238,6 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-# NOUVEAU MENU AVEC ONGLET REGLEMENT
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📝 Pronostics", "📜 Règlement", "📊 Classement Complet", "🌍 Groupes", "👀 Mes Paris"])
 
 with tab1:
@@ -331,7 +326,7 @@ with tab2:
     
     ---
     ### ⚠️ Autres règles
-    * Les pronostics doivent être validés avant le coup d'envoi.
+    * **Important** : La totalité de la grille (tous les matchs) doit être remplie et validée impérativement avant le coup d'envoi du premier match de la Coupe du Monde.
     * En cas d'égalité de points à la fin, le nombre de "Scores Exacts" départagera les joueurs.
     """)
 
