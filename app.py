@@ -12,18 +12,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# 👇 --- ZONE D'ADMINISTRATION (TOI SEUL TOUCHES ICI) --- 👇
-
-# METS "False" QUAND LE PREMIER MATCH COMMENCE POUR BLOQUER LES PARIS
+# 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = True  
+DERNIERE_MAJ = "08/12/2025 à 23:55"
+# 👆 ---------------------------- 👆
 
-# METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "09/12/2025 à 09:00"
-
-# 👆 ---------------------------------------------------- 👆
-
-
-# --- CONNEXION GOOGLE SHEETS (OPTIMISÉE) ---
+# --- CONNEXION GOOGLE SHEETS ---
 @st.cache_resource
 def get_google_sheet_client():
     try:
@@ -48,7 +42,6 @@ def connect_to_gsheets():
     return None
 
 # --- LISTE DES MATCHS ---
-# C'est ici que TU mettras les scores réels au fur et à mesure
 MATCHS = [
     {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
     {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🏳️ Barragiste D", "scA": None, "scB": None},
@@ -122,24 +115,20 @@ MATCHS = [
 ]
 
 # --- FONCTIONS ROBUSTES AVEC CACHE ---
-@st.cache_data(ttl=60) # On ne recharge les données que toutes les 60 secondes max
+@st.cache_data(ttl=60)
 def charger_donnees():
     try:
         sheet = connect_to_gsheets()
         if sheet is None: 
             return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
-        
         data = sheet.get_all_records()
         if not data:
             return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
-        
         df = pd.DataFrame(data)
-        
         if "Pseudo" in df.columns and "Nom et Prénom" not in df.columns:
             df.rename(columns={"Pseudo": "Nom et Prénom"}, inplace=True)
         if "Email" not in df.columns:
             df["Email"] = ""
-            
         return df
     except Exception as e:
         return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
@@ -273,7 +262,6 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-# ONGLETS (6 AU TOTAL)
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📝 Pronostics", "📢 Résultats & Calendrier", "📜 Règlement", "📊 Classement", "🌍 Groupes", "👀 Mes Paris"])
 
 with tab1:
@@ -352,18 +340,14 @@ with tab1:
 
 with tab2:
     st.header("📢 Résultats & Calendrier")
-    
     dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
     for d in dates_uniques:
         st.markdown(f"##### 🗓️ {formater_date(d)}")
         matchs_du_jour = [m for m in MATCHS if m['date'] == d]
-        
-        # Affichage en colonnes pour être propre
         cols = st.columns(2)
         for i, m in enumerate(matchs_du_jour):
             with cols[i % 2]:
                 with st.container(border=True):
-                    # Si le score est rentré (match fini)
                     if m['scA'] is not None and m['scB'] is not None:
                         st.markdown(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}")
                         st.caption("✅ Terminé")
@@ -435,6 +419,15 @@ with tab5:
                 st.subheader(grp)
                 df_classement = calculer_classement_groupe(grp)
                 st.dataframe(df_classement, use_container_width=True)
+                # Ajout de la liste des matchs sous le classement
+                st.divider()
+                st.caption(f"Matchs du {grp}")
+                matchs_grp = [m for m in MATCHS if m['groupe'] == grp]
+                for m in matchs_grp:
+                    if m['scA'] is not None:
+                        st.write(f"{m['eqA']} **{m['scA']}-{m['scB']}** {m['eqB']}")
+                    else:
+                        st.write(f"{m['eqA']} vs {m['eqB']}")
 
 with tab6:
     st.header("🔍 Retrouver mes pronostics")
