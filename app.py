@@ -13,10 +13,9 @@ st.set_page_config(
 )
 
 # 👇 METTRE À JOUR CETTE DATE RÉGULIÈREMENT
-DERNIERE_MAJ = "08/12/2025 à 21:00"
+DERNIERE_MAJ = "08/12/2025 à 21:30"
 
 # --- CONNEXION GOOGLE SHEETS (OPTIMISÉE) ---
-# On met en cache la connexion pour ne pas se reconnecter à chaque clic
 @st.cache_resource
 def get_google_sheet_client():
     try:
@@ -116,7 +115,6 @@ MATCHS = [
 # --- FONCTIONS ROBUSTES AVEC CACHE ---
 @st.cache_data(ttl=60) # On ne recharge les données que toutes les 60 secondes max
 def charger_donnees():
-    """Charge les données en gérant les anciens formats (Pseudo vs Nom)"""
     try:
         sheet = connect_to_gsheets()
         if sheet is None: 
@@ -145,7 +143,7 @@ def sauvegarder_tout(nom_prenom, email, liste_pronos):
     for (match_id, pa, pb) in liste_pronos:
         lignes_a_ajouter.append([nom_prenom, email, match_id, pa, pb])
     sheet.append_rows(lignes_a_ajouter)
-    # On vide le cache après sauvegarde pour voir les résultats tout de suite
+    # On vide le cache après sauvegarde
     charger_donnees.clear()
 
 def calculer_points(prono_a, prono_b, reel_a, reel_b):
@@ -223,11 +221,9 @@ with st.sidebar:
                 scores_live[j] = pts
             
             if scores_live:
-                # Création du classement
                 df_rank_live = pd.DataFrame(list(scores_live.items()), columns=["Joueur", "Pts"])
                 df_rank_live = df_rank_live.sort_values(by="Pts", ascending=False).reset_index(drop=True)
                 df_rank_live.index += 1
-                # Affichage des 10 premiers uniquement
                 st.table(df_rank_live.head(10))
             else:
                 st.write("En attente de points...")
@@ -325,8 +321,13 @@ with tab2:
     * **0 Point** : Mauvais Résultat
     
     ---
-    ### 🏆 Lots et Gains
-    *(À compléter ici plus tard : Prix pour le premier, le deuxième, etc.)*
+    ### 🏆 Répartition des Gains
+    La somme totale des participations sera redistribuée aux trois meilleurs pronostiqueurs selon la clé de répartition suivante :
+    * 🥇 **1ère place** : 60 % de la cagnotte totale.
+    * 🥈 **2ème place** : 30 % de la cagnotte totale.
+    * 🥉 **3ème place** : 10 % de la cagnotte totale.
+
+    En cas d'égalité, les gains du rang concerné seront partagés équitablement entre les ex-aequo.
     
     ---
     ### ⚠️ Autres règles
