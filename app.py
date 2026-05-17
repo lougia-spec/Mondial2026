@@ -17,7 +17,7 @@ st.set_page_config(
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = True  
-DERNIERE_MAJ = "17/05/2026 à 17:30"
+DERNIERE_MAJ = "17/05/2026 à 18:00"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
 # 👆 ---------------------------- 👆
@@ -41,7 +41,6 @@ def connect_to_gsheets():
     client = get_google_sheet_client()
     if client:
         try:
-            # L'ID DU NOUVEAU FICHIER EST ICI 👇
             return client.open_by_key("15fDZ_pb8lNnX1TKuTAPNThgRJkF668O8XgkvVUPVldE").sheet1
         except:
             return None
@@ -124,6 +123,13 @@ MATCHS = [
 ]
 
 # --- FONCTIONS ROBUSTES AVEC CACHE ---
+
+def formater_date(d_str):
+    obj = datetime.strptime(d_str, "%Y-%m-%d")
+    jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+    mois = ["Jan", "Fév", "Mars", "Avril", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]
+    return f"{jours[obj.weekday()]} {obj.day} {mois[obj.month-1]}"
+
 @st.cache_data(ttl=60)
 def charger_donnees():
     try:
@@ -294,7 +300,8 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📝 Pronostics", "📢 Résultats & Calendrier", "📜 Règlement", "📊 Classement", "🌍 Groupes", "👀 Mes Paris"])
+# On ajoute le 7ème onglet ici 👇
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["📝 Pronostics", "📢 Résultats & Calendrier", "📜 Règlement", "📊 Classement", "🌍 Groupes", "👀 Mes Paris", "🔎 Pronos par Match"])
 
 with tab1:
     if PRONOS_OUVERTS:
@@ -316,12 +323,6 @@ with tab1:
             saisies = {}
             MATCHS.sort(key=lambda x: x['date'])
             dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
-            
-            def formater_date(d_str):
-                obj = datetime.strptime(d_str, "%Y-%m-%d")
-                jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
-                mois = ["Jan", "Fév", "Mars", "Avril", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]
-                return f"{jours[obj.weekday()]} {obj.day} {mois[obj.month-1]}"
 
             for d in dates_uniques:
                 st.markdown(f"### 🗓️ {formater_date(d)}")
@@ -497,3 +498,50 @@ with tab6:
                 st.warning("Rien trouvé.")
         else:
             st.info("Nom inconnu.")
+
+# 👇 LE NOUVEL ONGLET EST ICI 👇
+with tab7:
+    st.header("🔎 Tous les pronostics par match")
+    df = charger_donnees()
+    
+    if df.empty:
+        st.info("Personne n'a encore parié. Reviens plus tard ! 😊")
+    else:
+        # Créer la liste des matchs pour le menu déroulant
+        options_matchs = []
+        for m in MATCHS:
+            date_belle = formater_date(m['date'])
+            options_matchs.append(f"{m['eqA']} vs {m['eqB']} ({date_belle})")
+        
+        # Menu déroulant
+        choix = st.selectbox("Sélectionne un match pour voir les paris :", options_matchs)
+        
+        # Retrouver le match correspondant
+        index_choix = options_matchs.index(choix)
+        match_select = MATCHS[index_choix]
+        
+        # Filtrer la base de données
+        df_filtre = df[df['Match_ID'] == match_select['id']]
+        
+        if df_filtre.empty:
+            st.warning("Aucun joueur n'a encore pronostiqué ce match.")
+        else:
+            col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
+            
+            # Afficher la tendance générale pour ce match
+            stats = calculer_tendance(match_select['id'], df)
+            if stats:
+                st.info(f"📊 **Tendance de la communauté :** Victoire {match_select['eqA']} **{stats['A']}%** | Nul **{stats['N']}%** | Victoire {match_select['eqB']} **{stats['B']}%**")
+            
+            # Préparer et afficher le tableau
+            df_affichage = df_filtre[[col_nom, 'Prono_A', 'Prono_B']].copy()
+            df_affichage = df_affichage.rename(columns={
+                col_nom: "Joueur", 
+                "Prono_A": f"Score {match_select['eqA']}", 
+                "Prono_B": f"Score {match_select['eqB']}"
+            })
+            
+            # Trie par ordre alphabétique des joueurs pour que ce soit plus joli
+            df_affichage = df_affichage.sort_values(by="Joueur").reset_index(drop=True)
+            
+            st.dataframe(df_affichage, use_container_width=True)
