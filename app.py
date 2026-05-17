@@ -17,7 +17,7 @@ st.set_page_config(
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = True  
-DERNIERE_MAJ = "17/05/2026 à 17:00"
+DERNIERE_MAJ = "17/05/2026 à 17:30"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
 # 👆 ---------------------------- 👆
@@ -129,18 +129,20 @@ def charger_donnees():
     try:
         sheet = connect_to_gsheets()
         if sheet is None: 
-            return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
+            return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B", "Paiement"])
         data = sheet.get_all_records()
         if not data:
-            return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
+            return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B", "Paiement"])
         df = pd.DataFrame(data)
         if "Pseudo" in df.columns and "Nom et Prénom" not in df.columns:
             df.rename(columns={"Pseudo": "Nom et Prénom"}, inplace=True)
         if "Email" not in df.columns:
             df["Email"] = ""
+        if "Paiement" not in df.columns:
+            df["Paiement"] = "⏳ En attente"
         return df
     except Exception as e:
-        return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B"])
+        return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B", "Paiement"])
 
 def envoyer_confirmation(destinataire, nom):
     if "email" not in st.secrets: return
@@ -151,7 +153,7 @@ def envoyer_confirmation(destinataire, nom):
         msg['From'] = sender_email
         msg['To'] = destinataire
         msg['Subject'] = "⚽ Mondial 2026 - Pronostics enregistrés !"
-        body = f"Bonjour {nom},\n\nTes pronostics pour le Mondial 2026 ont bien été validés !\n\nN'oublie pas de rejoindre le groupe WhatsApp pour suivre la compétition : {LIEN_WHATSAPP}\n\nBonne chance ! 🍀"
+        body = f"Bonjour {nom},\n\nTes pronostics pour le Mondial 2026 ont bien été validés !\n\nN'oublie pas de payer ta participation de 5€ via ce lien : {LIEN_CAGNOTTE}\n\nEt rejoins le groupe WhatsApp ici : {LIEN_WHATSAPP}\n\nBonne chance ! 🍀"
         msg.attach(MIMEText(body, 'plain'))
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
@@ -166,7 +168,8 @@ def sauvegarder_tout(nom_prenom, email, liste_pronos):
     if sheet is None: return
     lignes_a_ajouter = []
     for (match_id, pa, pb) in liste_pronos:
-        lignes_a_ajouter.append([nom_prenom, email, match_id, pa, pb])
+        # Ajout automatique de la mention En attente pour le paiement
+        lignes_a_ajouter.append([nom_prenom, email, match_id, pa, pb, "⏳ En attente"])
     sheet.append_rows(lignes_a_ajouter)
     envoyer_confirmation(email, nom_prenom)
     charger_donnees.clear()
@@ -361,10 +364,10 @@ with tab1:
                         for mid, (sa, sb) in saisies.items():
                             liste_a_envoyer.append((mid, sa, sb))
                         sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
+                    
                     st.success(f"✅ C'est enregistré {nom_prenom} !")
                     st.markdown("---")
                     
-                    # 👇 NOUVEAUX BOUTONS 👇
                     st.success("📲 **DERNIÈRES ÉTAPES IMPORTANTES :**")
                     col_btn1, col_btn2 = st.columns(2)
                     
@@ -373,8 +376,7 @@ with tab1:
                     
                     with col_btn2:
                         st.link_button("2️⃣ Rejoindre le groupe WhatsApp 💬", LIEN_WHATSAPP, use_container_width=True)
-                    # 👆 ------------------ 👆
-                    
+                        
                     st.balloons()
     else:
         st.error("⛔️ Les pronostics sont fermés ! La compétition a commencé.")
