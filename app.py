@@ -40,7 +40,7 @@ def connect_to_gsheets():
     client = get_google_sheet_client()
     if client:
         try:
-            return client.open_by_key("1TqmQusKk29ii1A1ZRNHDxvJLlv13I1dyXKrhvY-V29Q").sheet1
+            return client.open_by_key("4cU79Zf5vxuEgjRdkPRuAXkbyorHtMNIQTU2ZYFUTy8").sheet1
         except:
             return None
     return None
