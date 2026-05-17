@@ -17,7 +17,7 @@ st.set_page_config(
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = True  
-DERNIERE_MAJ = "17/05/2026 à 13:00"
+DERNIERE_MAJ = "17/05/2026 à 17:00"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 # 👆 ---------------------------- 👆
 
@@ -40,7 +40,8 @@ def connect_to_gsheets():
     client = get_google_sheet_client()
     if client:
         try:
-            return client.open_by_key("4cU79Zf5vxuEgjRdkPRuAXkbyorHtMNIQTU2ZYFUTy8").sheet1
+            # L'ID DU NOUVEAU FICHIER EST ICI 👇
+            return client.open_by_key("15fDZ_pb8lNnX1TKuTAPNThgRJkF668O8XgkvVUPVldE").sheet1
         except:
             return None
     return None
