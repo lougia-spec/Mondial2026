@@ -19,6 +19,7 @@ st.set_page_config(
 PRONOS_OUVERTS = True  
 DERNIERE_MAJ = "17/05/2026 à 17:00"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
+LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR
 # 👆 ---------------------------- 👆
 
 # --- CONNEXION GOOGLE SHEETS ---
@@ -362,9 +363,18 @@ with tab1:
                         sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                     st.success(f"✅ C'est enregistré {nom_prenom} !")
                     st.markdown("---")
-                    st.success("📲 **REJOINS LE GROUPE WHATSAPP MAINTENANT !**")
-                    st.markdown("Clique ci-dessous pour être au courant de tout :")
-                    st.link_button("Rejoindre le groupe WhatsApp ⚽", LIEN_WHATSAPP)
+                    
+                    # 👇 NOUVEAUX BOUTONS 👇
+                    st.success("📲 **DERNIÈRES ÉTAPES IMPORTANTES :**")
+                    col_btn1, col_btn2 = st.columns(2)
+                    
+                    with col_btn1:
+                        st.link_button("1️⃣ Payer ma participation (5€) 💳", LIEN_CAGNOTTE, use_container_width=True)
+                    
+                    with col_btn2:
+                        st.link_button("2️⃣ Rejoindre le groupe WhatsApp 💬", LIEN_WHATSAPP, use_container_width=True)
+                    # 👆 ------------------ 👆
+                    
                     st.balloons()
     else:
         st.error("⛔️ Les pronostics sont fermés ! La compétition a commencé.")
