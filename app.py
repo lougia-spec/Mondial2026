@@ -19,7 +19,7 @@ st.set_page_config(
 PRONOS_OUVERTS = True  
 DERNIERE_MAJ = "17/05/2026 à 17:00"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
-LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR
+LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
 # 👆 ---------------------------- 👆
 
 # --- CONNEXION GOOGLE SHEETS ---
