@@ -15,9 +15,28 @@ st.set_page_config(
     layout="wide"
 )
 
+# 👇 NOUVEAU : LE FOND D'ÉCRAN 👇
+fond_ecran = """
+<style>
+.stApp {
+    /* Image de stade avec un voile blanc transparent à 88% pour garantir la lisibilité du texte */
+    background: linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), url("https://images.unsplash.com/photo-1518605368461-1e1c9e1d0092?auto=format&fit=crop&q=80&w=2000");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+/* Rendre l'entête transparente pour voir le fond */
+.stApp > header {
+    background-color: transparent;
+}
+</style>
+"""
+st.markdown(fond_ecran, unsafe_allow_html=True)
+# 👆 ---------------------- 👆
+
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = True  
-DERNIERE_MAJ = "17/05/2026 à 18:15"
+DERNIERE_MAJ = "17/05/2026 à 18:30"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
 # 👆 ---------------------------- 👆
