@@ -36,7 +36,7 @@ st.markdown(fond_ecran, unsafe_allow_html=True)
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = True  
-DERNIERE_MAJ = "17/05/2026 à 18:45"
+DERNIERE_MAJ = "17/05/2026 à 18:55"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
 # 👆 ---------------------------- 👆
@@ -158,13 +158,20 @@ def charger_donnees():
         data = sheet.get_all_records()
         if not data:
             return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B", "Paiement"])
+        
         df = pd.DataFrame(data)
+        
         if "Pseudo" in df.columns and "Nom et Prénom" not in df.columns:
             df.rename(columns={"Pseudo": "Nom et Prénom"}, inplace=True)
         if "Email" not in df.columns:
             df["Email"] = ""
         if "Paiement" not in df.columns:
             df["Paiement"] = "⏳ En attente"
+            
+        # NOUVEAU : Sécurisation de l'ID des matchs contre les bugs Google Sheets
+        if "Match_ID" in df.columns:
+            df["Match_ID"] = pd.to_numeric(df["Match_ID"], errors='coerce')
+            
         return df
     except Exception as e:
         return pd.DataFrame(columns=["Nom et Prénom", "Email", "Match_ID", "Prono_A", "Prono_B", "Paiement"])
@@ -498,29 +505,43 @@ with tab5:
 
 with tab6:
     st.header("🔍 Retrouver mes pronostics")
-    nom_search = st.text_input("Entre ton Nom exact :")
+    st.markdown("Tape simplement ton prénom pour retrouver ta grille.")
+    nom_search = st.text_input("Recherche :")
+    
     if nom_search:
         df = charger_donnees()
         col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
-        if not df.empty and col_nom in df.columns and nom_search in df[col_nom].values:
-            mes_pronos = df[df[col_nom] == nom_search]
-            data_affichage = []
-            for m in MATCHS:
-                ligne_prono = mes_pronos[mes_pronos['Match_ID'] == m['id']]
-                if not ligne_prono.empty:
-                    pa = ligne_prono.iloc[0]['Prono_A']
-                    pb = ligne_prono.iloc[0]['Prono_B']
-                    data_affichage.append({
-                        "Date": m['date'],
-                        "Match": f"{m['eqA']} vs {m['eqB']}",
-                        "Mon Prono": f"{pa} - {pb}"
-                    })
-            if data_affichage:
-                st.table(pd.DataFrame(data_affichage))
+        
+        if not df.empty and col_nom in df.columns:
+            # Recherche flexible : enlève les majuscules et les espaces
+            df_temp = df.copy()
+            df_temp[col_nom] = df_temp[col_nom].astype(str).str.lower().str.strip()
+            search_clean = nom_search.lower().strip()
+            
+            # Vérifie si la recherche est contenue dans un nom de la base
+            mes_pronos = df[df_temp[col_nom].str.contains(search_clean, na=False)].copy()
+            
+            if not mes_pronos.empty:
+                vrai_nom = mes_pronos.iloc[0][col_nom]
+                mes_pronos = df[df[col_nom] == vrai_nom] # Sécurité
+                
+                st.success(f"✅ Pronostics trouvés pour : **{vrai_nom}**")
+                
+                data_affichage = []
+                for m in MATCHS:
+                    ligne_prono = mes_pronos[mes_pronos['Match_ID'] == m['id']]
+                    if not ligne_prono.empty:
+                        pa = ligne_prono.iloc[0]['Prono_A']
+                        pb = ligne_prono.iloc[0]['Prono_B']
+                        data_affichage.append({
+                            "Date": m['date'],
+                            "Match": f"{m['eqA']} vs {m['eqB']}",
+                            "Mon Prono": f"{pa} - {pb}"
+                        })
+                if data_affichage:
+                    st.table(pd.DataFrame(data_affichage))
             else:
-                st.warning("Rien trouvé.")
-        else:
-            st.info("Nom inconnu.")
+                st.info("Nom introuvable. Vérifie l'orthographe.")
 
 with tab7:
     st.header("🔎 Tous les pronostics par match")
