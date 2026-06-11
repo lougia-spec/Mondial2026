@@ -35,7 +35,7 @@ st.markdown(fond_ecran, unsafe_allow_html=True)
 # 👆 ---------------------- 👆
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
-PRONOS_OUVERTS = True  
+PRONOS_OUVERTS = False  
 DERNIERE_MAJ = "17/05/2026 à 18:55"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
