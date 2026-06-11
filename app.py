@@ -35,8 +35,8 @@ st.markdown(fond_ecran, unsafe_allow_html=True)
 # 👆 ---------------------- 👆
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
-PRONOS_OUVERTS = False  
-DERNIERE_MAJ = "17/05/2026 à 18:55"
+PRONOS_OUVERTS = False  # Les pronos sont fermés puisque ça a commencé !
+DERNIERE_MAJ = "11/06/2026 à 23:00"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
 # 👆 ---------------------------- 👆
@@ -67,7 +67,7 @@ def connect_to_gsheets():
 
 # --- LISTE DES 72 MATCHS ---
 MATCHS = [
-    {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": 2, "scB": 0},
+    {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": None, "scB": None},
     {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🇨🇿 Tchéquie", "scA": None, "scB": None},
     {"id": 7, "date": "2026-06-12", "heure": "21h", "groupe": "Groupe B", "eqA": "🇨🇦 Canada", "eqB": "🇧🇦 Bosnie-Herz.", "scA": None, "scB": None},
     {"id": 19, "date": "2026-06-13", "heure": "03h", "groupe": "Groupe D", "eqA": "🇺🇸 USA", "eqB": "🇵🇾 Paraguay", "scA": None, "scB": None},
@@ -107,17 +107,18 @@ MATCHS = [
     {"id": 45, "date": "2026-06-22", "heure": "18h", "groupe": "Groupe H", "eqA": "🇪🇸 Espagne", "eqB": "🇸🇦 Arabie Saoudite", "scA": None, "scB": None},
     {"id": 40, "date": "2026-06-22", "heure": "03h", "groupe": "Groupe G", "eqA": "🇪🇬 Égypte", "eqB": "🇳🇿 Nv-Zélande", "scA": None, "scB": None},
     {"id": 57, "date": "2026-06-22", "heure": "18h", "groupe": "Groupe J", "eqA": "🇦🇷 Argentine", "eqB": "🇦🇹 Autriche", "scA": None, "scB": None},
+    {"id": 46, "date": "2026-06-22", "heure": "02h", "groupe": "Groupe H", "eqA": "🇨🇻 Cap-Vert", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
+    {"id": 51, "date": "2026-06-23", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🇮🇶 Irak", "scA": None, "scB": None},
+    {"id": 52, "date": "2026-06-23", "heure": "23h", "groupe": "Groupe I", "eqA": "🇸🇳 Sénégal", "eqB": "🇳🇴 Norvège", "scA": None, "scB": None},
     {"id": 58, "date": "2026-06-23", "heure": "05h", "groupe": "Groupe J", "eqA": "🇩🇿 Algérie", "eqB": "🇯🇴 Jordanie", "scA": None, "scB": None},
     {"id": 63, "date": "2026-06-23", "heure": "19h", "groupe": "Groupe K", "eqA": "🇵🇹 Portugal", "eqB": "🇺🇿 Ouzbékistan", "scA": None, "scB": None},
     {"id": 69, "date": "2026-06-23", "heure": "22h", "groupe": "Groupe L", "eqA": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", "eqB": "🇬🇭 Ghana", "scA": None, "scB": None},
-    {"id": 52, "date": "2026-06-23", "heure": "23h", "groupe": "Groupe I", "eqA": "🇸🇳 Sénégal", "eqB": "🇳🇴 Norvège", "scA": None, "scB": None},
-    {"id": 54, "date": "2026-06-23", "heure": "18h", "groupe": "Groupe I", "eqA": "🇸🇳 Sénégal", "eqB": "🇮🇶 Irak", "scA": None, "scB": None},
     {"id": 6, "date": "2026-06-24", "heure": "03h", "groupe": "Groupe A", "eqA": "🇿🇦 Afrique Sud", "eqB": "🇰🇷 Corée du Sud", "scA": None, "scB": None},
     {"id": 11, "date": "2026-06-24", "heure": "21h", "groupe": "Groupe B", "eqA": "🇨🇭 Suisse", "eqB": "🇨🇦 Canada", "scA": None, "scB": None},
     {"id": 12, "date": "2026-06-24", "heure": "21h", "groupe": "Groupe B", "eqA": "🇧🇦 Bosnie-Herz.", "eqB": "🇶🇦 Qatar", "scA": None, "scB": None},
     {"id": 64, "date": "2026-06-24", "heure": "04h", "groupe": "Groupe K", "eqA": "🇨🇩 RD Congo", "eqB": "🇨🇴 Colombie", "scA": None, "scB": None},
     {"id": 70, "date": "2026-06-24", "heure": "22h", "groupe": "Groupe L", "eqA": "🇭🇷 Croatie", "eqB": "🇵🇦 Panama", "scA": None, "scB": None},
-    {"id": 73, "date": "2026-06-25", "heure": "03h", "groupe": "Groupe A", "eqA": "🇨🇿 Tchéquie", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None},
+    {"id": 5, "date": "2026-06-25", "heure": "03h", "groupe": "Groupe A", "eqA": "🇨🇿 Tchéquie", "eqB": "🇲🇽 Mexique", "scA": None, "scB": None},
     {"id": 17, "date": "2026-06-25", "heure": "00h", "groupe": "Groupe C", "eqA": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "eqB": "🇧🇷 Brésil", "scA": None, "scB": None},
     {"id": 18, "date": "2026-06-25", "heure": "00h", "groupe": "Groupe C", "eqA": "🇲🇦 Maroc", "eqB": "🇭🇹 Haïti", "scA": None, "scB": None},
     {"id": 23, "date": "2026-06-25", "heure": "21h", "groupe": "Groupe D", "eqA": "🇹🇷 Turquie", "eqB": "🇺🇸 USA", "scA": None, "scB": None},
@@ -128,11 +129,10 @@ MATCHS = [
     {"id": 36, "date": "2026-06-26", "heure": "01h", "groupe": "Groupe F", "eqA": "🇯🇵 Japon", "eqB": "🇸🇪 Suède", "scA": None, "scB": None},
     {"id": 41, "date": "2026-06-27", "heure": "05h", "groupe": "Groupe G", "eqA": "🇳🇿 Nv-Zélande", "eqB": "🇧🇪 Belgique", "scA": None, "scB": None},
     {"id": 42, "date": "2026-06-27", "heure": "05h", "groupe": "Groupe G", "eqA": "🇪🇬 Égypte", "eqB": "🇮🇷 Iran", "scA": None, "scB": None},
-    {"id": 46, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇨🇻 Cap-Vert", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
     {"id": 47, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇺🇾 Uruguay", "eqB": "🇪🇸 Espagne", "scA": None, "scB": None},
     {"id": 48, "date": "2026-06-27", "heure": "02h", "groupe": "Groupe H", "eqA": "🇨🇻 Cap-Vert", "eqB": "🇸🇦 Arabie Saoudite", "scA": None, "scB": None},
-    {"id": 51, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🇮🇶 Irak", "scA": None, "scB": None},
     {"id": 53, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇳🇴 Norvège", "eqB": "🇫🇷 France", "scA": None, "scB": None},
+    {"id": 54, "date": "2026-06-27", "heure": "21h", "groupe": "Groupe I", "eqA": "🇸🇳 Sénégal", "eqB": "🇮🇶 Irak", "scA": None, "scB": None},
     {"id": 59, "date": "2026-06-28", "heure": "04h", "groupe": "Groupe J", "eqA": "🇯🇴 Jordanie", "eqB": "🇦🇷 Argentine", "scA": None, "scB": None},
     {"id": 60, "date": "2026-06-28", "heure": "04h", "groupe": "Groupe J", "eqA": "🇩🇿 Algérie", "eqB": "🇦🇹 Autriche", "scA": None, "scB": None},
     {"id": 65, "date": "2026-06-28", "heure": "01h", "groupe": "Groupe K", "eqA": "🇨🇴 Colombie", "eqB": "🇵🇹 Portugal", "scA": None, "scB": None},
@@ -168,7 +168,6 @@ def charger_donnees():
         if "Paiement" not in df.columns:
             df["Paiement"] = "⏳ En attente"
             
-        # NOUVEAU : Sécurisation de l'ID des matchs contre les bugs Google Sheets
         if "Match_ID" in df.columns:
             df["Match_ID"] = pd.to_numeric(df["Match_ID"], errors='coerce')
             
@@ -513,17 +512,15 @@ with tab6:
         col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
         
         if not df.empty and col_nom in df.columns:
-            # Recherche flexible : enlève les majuscules et les espaces
             df_temp = df.copy()
             df_temp[col_nom] = df_temp[col_nom].astype(str).str.lower().str.strip()
             search_clean = nom_search.lower().strip()
             
-            # Vérifie si la recherche est contenue dans un nom de la base
             mes_pronos = df[df_temp[col_nom].str.contains(search_clean, na=False)].copy()
             
             if not mes_pronos.empty:
                 vrai_nom = mes_pronos.iloc[0][col_nom]
-                mes_pronos = df[df[col_nom] == vrai_nom] # Sécurité
+                mes_pronos = df[df[col_nom] == vrai_nom]
                 
                 st.success(f"✅ Pronostics trouvés pour : **{vrai_nom}**")
                 
