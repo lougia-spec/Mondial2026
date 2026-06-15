@@ -61,7 +61,7 @@ def connect_to_gsheets():
         except: return None
     return None
 
-# --- LA BASE DE DONNÉES DE SECOURS (AVEC TES SCORES SAUVÉS) ---
+# --- LA BASE DE DONNÉES DE SECOURS ---
 MATCHS_BASE = [
     {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": 2, "scB": 0, "statut": "terminé"},
     {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🇨🇿 Tchéquie", "scA": 2, "scB": 1, "statut": "terminé"},
@@ -137,8 +137,6 @@ MATCHS_BASE = [
     {"id": 72, "date": "2026-06-28", "heure": "23h", "groupe": "Groupe L", "eqA": "🇭🇷 Croatie", "eqB": "🇬🇭 Ghana", "scA": None, "scB": None, "statut": ""},
 ]
 
-# --- FONCTIONS ROBUSTES AVEC CACHE ---
-
 def formater_date(d_str):
     obj = datetime.strptime(d_str, "%Y-%m-%d")
     jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
@@ -167,7 +165,6 @@ def charger_calendrier():
         return matchs_finaux
         
     except:
-        # Création automatique de l'onglet s'il n'existe pas !
         try: ws = ss.add_worksheet(title="Calendrier", rows=100, cols=10)
         except: ws = ss.worksheet("Calendrier")
             
@@ -176,7 +173,6 @@ def charger_calendrier():
         ws.append_rows([df_base.columns.values.tolist()] + df_base.values.tolist())
         return MATCHS_BASE
 
-# 👇 LECTURE DYNAMIQUE DEPUIS GOOGLE SHEETS 👇
 MATCHS = charger_calendrier()
 
 @st.cache_data(ttl=60)
@@ -348,9 +344,38 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["📝 Pronostics", "📢 Résultats & Calendrier", "📜 Règlement", "📊 Classement", "🌍 Groupes", "👀 Mes Paris", "🔎 Pronos par Match"])
+# 👇 L'ORDRE DES ONGLETS A ÉTÉ MODIFIÉ ICI 👇
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "📢 Résultats & Calendrier", 
+    "📝 Pronostics", 
+    "📜 Règlement", 
+    "📊 Classement", 
+    "🌍 Groupes", 
+    "👀 Mes Paris", 
+    "🔎 Pronos par Match"
+])
 
-with tab1:
+with tab1: # ANCIENNEMENT TAB2 (RÉSULTATS)
+    st.header("📢 Résultats & Calendrier")
+    dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
+    for d in dates_uniques:
+        st.markdown(f"##### 🗓️ {formater_date(d)}")
+        matchs_du_jour = [m for m in MATCHS if m['date'] == d]
+        cols = st.columns(2)
+        for i, m in enumerate(matchs_du_jour):
+            with cols[i % 2]:
+                if m['scA'] is not None and m['scB'] is not None:
+                    statut = m.get("statut", "terminé")
+                    if statut.lower() == "en cours":
+                        st.warning(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n🔥 **En cours**")
+                    else:
+                        st.success(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n✅ **Terminé**")
+                else:
+                    with st.container(border=True):
+                        st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
+                        st.caption(f"🕒 {m['heure']} - {m['groupe']}")
+
+with tab2: # ANCIENNEMENT TAB1 (PRONOSTICS)
     if PRONOS_OUVERTS:
         st.write("### 📅 Le Calendrier")
         try:
@@ -429,26 +454,6 @@ with tab1:
     else:
         st.error("⛔️ Les pronostics sont fermés ! La compétition a commencé.")
         st.info("Tu peux toujours consulter ton classement et les résultats dans les autres onglets.")
-
-with tab2:
-    st.header("📢 Résultats & Calendrier")
-    dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
-    for d in dates_uniques:
-        st.markdown(f"##### 🗓️ {formater_date(d)}")
-        matchs_du_jour = [m for m in MATCHS if m['date'] == d]
-        cols = st.columns(2)
-        for i, m in enumerate(matchs_du_jour):
-            with cols[i % 2]:
-                if m['scA'] is not None and m['scB'] is not None:
-                    statut = m.get("statut", "terminé")
-                    if statut.lower() == "en cours":
-                        st.warning(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n🔥 **En cours**")
-                    else:
-                        st.success(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n✅ **Terminé**")
-                else:
-                    with st.container(border=True):
-                        st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
-                        st.caption(f"🕒 {m['heure']} - {m['groupe']}")
 
 with tab3:
     st.header("📜 Règlement du Concours")
