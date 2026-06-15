@@ -36,7 +36,7 @@ st.markdown(fond_ecran, unsafe_allow_html=True)
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = False  # Les pronos sont fermés puisque ça a commencé !
-DERNIERE_MAJ = "11/06/2026 à 23:00"
+DERNIERE_MAJ = "15/06/2026 à 22:00"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
 # 👆 ---------------------------- 👆
@@ -65,7 +65,7 @@ def connect_to_gsheets():
             return None
     return None
 
-# --- LISTE DES 72 MATCHS ---
+# --- LISTE DES 72 MATCHS AVEC TES SCORES INTÉGRÉS ---
 MATCHS = [
     {"id": 1, "date": "2026-06-11", "heure": "21h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇿🇦 Afrique Sud", "scA": 2, "scB": 0},
     {"id": 2, "date": "2026-06-12", "heure": "04h", "groupe": "Groupe A", "eqA": "🇰🇷 Corée du Sud", "eqB": "🇨🇿 Tchéquie", "scA": 2, "scB": 1},
@@ -73,14 +73,15 @@ MATCHS = [
     {"id": 19, "date": "2026-06-13", "heure": "03h", "groupe": "Groupe D", "eqA": "🇺🇸 USA", "eqB": "🇵🇾 Paraguay", "scA": 4, "scB": 1},
     {"id": 20, "date": "2026-06-13", "heure": "06h", "groupe": "Groupe D", "eqA": "🇦🇺 Australie", "eqB": "🇹🇷 Turquie", "scA": 2, "scB": 0},
     {"id": 8, "date": "2026-06-13", "heure": "21h", "groupe": "Groupe B", "eqA": "🇶🇦 Qatar", "eqB": "🇨🇭 Suisse", "scA": 1, "scB": 1},
-    {"id": 37, "date": "2026-06-15", "heure": "21h", "groupe": "Groupe G", "eqA": "🇧🇪 Belgique", "eqB": "🇪🇬 Égypte", "scA": None, "scB": None},
     {"id": 31, "date": "2026-06-14", "heure": "22h", "groupe": "Groupe F", "eqA": "🇳🇱 Pays-Bas", "eqB": "🇯🇵 Japon", "scA": 2, "scB": 2},
     {"id": 14, "date": "2026-06-14", "heure": "03h", "groupe": "Groupe C", "eqA": "🇭🇹 Haïti", "eqB": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "scA": 0, "scB": 1},
     {"id": 13, "date": "2026-06-15", "heure": "00h", "groupe": "Groupe C", "eqA": "🇧🇷 Brésil", "eqB": "🇲🇦 Maroc", "scA": 1, "scB": 1},
+    {"id": 37, "date": "2026-06-15", "heure": "21h", "groupe": "Groupe G", "eqA": "🇧🇪 Belgique", "eqB": "🇪🇬 Égypte", "scA": None, "scB": None},
     {"id": 38, "date": "2026-06-15", "heure": "03h", "groupe": "Groupe G", "eqA": "🇮🇷 Iran", "eqB": "🇳🇿 Nv-Zélande", "scA": None, "scB": None},
     {"id": 25, "date": "2026-06-15", "heure": "19h", "groupe": "Groupe E", "eqA": "🇩🇪 Allemagne", "eqB": "🇨🇼 Curaçao", "scA": 7, "scB": 1},
     {"id": 26, "date": "2026-06-15", "heure": "01h", "groupe": "Groupe E", "eqA": "🇨🇮 Côte d'Ivoire", "eqB": "🇪🇨 Équateur", "scA": 1, "scB": 0},
     {"id": 32, "date": "2026-06-15", "heure": "04h", "groupe": "Groupe F", "eqA": "🇸🇪 Suède", "eqB": "🇹🇳 Tunisie", "scA": 5, "scB": 1},
+    {"id": 43, "date": "2026-06-15", "heure": "18h", "groupe": "Groupe H", "eqA": "🇪🇸 Espagne", "eqB": "🇨🇻 Cap-Vert", "scA": 0, "scB": 0},
     {"id": 55, "date": "2026-06-16", "heure": "18h", "groupe": "Groupe J", "eqA": "🇦🇷 Argentine", "eqB": "🇩🇿 Algérie", "scA": None, "scB": None},
     {"id": 56, "date": "2026-06-16", "heure": "06h", "groupe": "Groupe J", "eqA": "🇦🇹 Autriche", "eqB": "🇯🇴 Jordanie", "scA": None, "scB": None},
     {"id": 61, "date": "2026-06-16", "heure": "19h", "groupe": "Groupe K", "eqA": "🇵🇹 Portugal", "eqB": "🇨🇩 RD Congo", "scA": None, "scB": None},
@@ -89,12 +90,11 @@ MATCHS = [
     {"id": 68, "date": "2026-06-17", "heure": "01h", "groupe": "Groupe L", "eqA": "🇬🇭 Ghana", "eqB": "🇵🇦 Panama", "scA": None, "scB": None},
     {"id": 10, "date": "2026-06-17", "heure": "21h", "groupe": "Groupe B", "eqA": "🇧🇦 Bosnie-Herz.", "eqB": "🇨🇭 Suisse", "scA": None, "scB": None},
     {"id": 3, "date": "2026-06-18", "heure": "03h", "groupe": "Groupe A", "eqA": "🇲🇽 Mexique", "eqB": "🇰🇷 Corée du Sud", "scA": None, "scB": None},
-    {"id": 43, "date": "2026-06-15", "heure": "18h", "groupe": "Groupe H", "eqA": "🇪🇸 Espagne", "eqB": "🇨🇻 Cap-Vert", "scA": 0, "scB": 0},
     {"id": 44, "date": "2026-06-18", "heure": "00h", "groupe": "Groupe H", "eqA": "🇸🇦 Arabie Saoudite", "eqB": "🇺🇾 Uruguay", "scA": None, "scB": None},
     {"id": 4, "date": "2026-06-19", "heure": "06h", "groupe": "Groupe A", "eqA": "🇿🇦 Afrique Sud", "eqB": "🇨🇿 Tchéquie", "scA": None, "scB": None},
     {"id": 9, "date": "2026-06-19", "heure": "00h", "groupe": "Groupe B", "eqA": "🇨🇦 Canada", "eqB": "🇶🇦 Qatar", "scA": None, "scB": None},
     {"id": 21, "date": "2026-06-19", "heure": "21h", "groupe": "Groupe D", "eqA": "🇺🇸 USA", "eqB": "🇦🇺 Australie", "scA": None, "scB": None},
-    {"id": 49, "date": "2026-06-16", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🇸🇳 Sénégal", "scA": None, "scB": None},
+    {"id": 49, "date": "2026-06-19", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🇸🇳 Sénégal", "scA": None, "scB": None},
     {"id": 15, "date": "2026-06-20", "heure": "00h", "groupe": "Groupe C", "eqA": "🇧🇷 Brésil", "eqB": "🇭🇹 Haïti", "scA": None, "scB": None},
     {"id": 16, "date": "2026-06-20", "heure": "00h", "groupe": "Groupe C", "eqA": "🇲🇦 Maroc", "eqB": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "scA": None, "scB": None},
     {"id": 27, "date": "2026-06-20", "heure": "19h", "groupe": "Groupe E", "eqA": "🇩🇪 Allemagne", "eqB": "🇨🇮 Côte d'Ivoire", "scA": None, "scB": None},
@@ -204,7 +204,7 @@ def sauvegarder_tout(nom_prenom, email, liste_pronos):
     envoyer_confirmation(email, nom_prenom)
     charger_donnees.clear()
 
-def calculer_points(prono_a, prono_b, reel_a, reel_b):
+def calculer_points(prono_a, prono_b, reel_a, reel_b, eqA="", eqB=""):
     if reel_a is None: return 0 
     try:
         pa, pb = int(prono_a), int(prono_b)
@@ -218,6 +218,11 @@ def calculer_points(prono_a, prono_b, reel_a, reel_b):
         points += 1
         if pa == ra and pb == rb:
             points += 2
+            
+    # Si la France joue (A ou B), on double le total des points obtenus sur le match
+    if "France" in eqA or "France" in eqB:
+        points = points * 2
+        
     return points
 
 def calculer_classement_groupe(nom_groupe):
@@ -298,7 +303,8 @@ with st.sidebar:
                     pari = pronos_j[pronos_j.Match_ID == m['id']]
                     if not pari.empty and m['scA'] is not None:
                         try:
-                            pts += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'])
+                            # Ajout des arguments eqA et eqB pour le calcul double de la France
+                            pts += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'], m['eqA'], m['eqB'])
                         except: pass
                 scores_live[j] = pts
             
@@ -414,21 +420,13 @@ with tab2:
         matchs_du_jour = [m for m in MATCHS if m['date'] == d]
         cols = st.columns(2)
         for i, m in enumerate(matchs_du_jour):
-
             with cols[i % 2]:
-
-                with st.container(border=True):
-
-                    if m['scA'] is not None and m['scB'] is not None:
-
-                        st.markdown(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}")
-
-                        st.caption("✅ Terminé")
-
-                    else:
-
+                # 👇 C'EST ICI : Affichage en vert si le match a un score 👇
+                if m['scA'] is not None and m['scB'] is not None:
+                    st.success(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n✅ **Terminé**")
+                else:
+                    with st.container(border=True):
                         st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
-
                         st.caption(f"🕒 {m['heure']} - {m['groupe']}")
 
 with tab3:
@@ -442,6 +440,8 @@ with tab3:
         * *Exemple : Tu as pronostiqué 1-0 et le match finit 3-0 (Tu as trouvé le vainqueur).*
         * *Exemple : Tu as pronostiqué 1-1 et le match finit 0-0 (Tu as trouvé le match nul).*
     * **0 Point** : Mauvais Résultat
+    
+    🔥 **RÈGLE SPÉCIALE :** Tous les matchs de l'**Équipe de France** comptent **DOUBLE** ! Un score exact vaudra **6 points** au lieu de 3, et un bon résultat vaudra **2 points** au lieu d'1.
     
     ---
     ### 🔮 Phase Finale (À partir des 16èmes)
@@ -481,7 +481,7 @@ with tab4:
                     pari = pronos_j[pronos_j.Match_ID == m['id']]
                     if not pari.empty and m['scA'] is not None:
                         try:
-                            pts += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'])
+                            pts += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'], m['eqA'], m['eqB'])
                         except: pass
                 scores_joueurs[j] = pts
             
@@ -505,10 +505,11 @@ with tab5:
                 st.caption(f"Matchs du {grp}")
                 matchs_grp = [m for m in MATCHS if m['groupe'] == grp]
                 for m in matchs_grp:
+                    # 👇 C'EST ICI : Les petits scores passent en vert aussi 👇
                     if m['scA'] is not None:
-                        st.write(f"{m['eqA']} **{m['scA']}-{m['scB']}** {m['eqB']}")
+                        st.success(f"{m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}")
                     else:
-                        st.write(f"{m['eqA']} vs {m['eqB']}")
+                        st.write(f"⏳ {m['eqA']} vs {m['eqB']}")
 
 with tab6:
     st.header("🔍 Retrouver mes pronostics")
