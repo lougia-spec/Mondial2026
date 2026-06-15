@@ -36,7 +36,7 @@ st.markdown(fond_ecran, unsafe_allow_html=True)
 
 # 👇 --- ZONE D'ADMINISTRATION --- 👇
 PRONOS_OUVERTS = False  # Les pronos sont fermés puisque ça a commencé !
-DERNIERE_MAJ = "15/06/2026 à 22:00"
+DERNIERE_MAJ = "15/06/2026 à 22:30"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
 # 👆 ---------------------------- 👆
@@ -94,7 +94,7 @@ MATCHS = [
     {"id": 4, "date": "2026-06-19", "heure": "06h", "groupe": "Groupe A", "eqA": "🇿🇦 Afrique Sud", "eqB": "🇨🇿 Tchéquie", "scA": None, "scB": None},
     {"id": 9, "date": "2026-06-19", "heure": "00h", "groupe": "Groupe B", "eqA": "🇨🇦 Canada", "eqB": "🇶🇦 Qatar", "scA": None, "scB": None},
     {"id": 21, "date": "2026-06-19", "heure": "21h", "groupe": "Groupe D", "eqA": "🇺🇸 USA", "eqB": "🇦🇺 Australie", "scA": None, "scB": None},
-    {"id": 49, "date": "2026-06-16", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🇸🇳 Sénégal", "scA": None, "scB": None},
+    {"id": 49, "date": "2026-06-19", "heure": "21h", "groupe": "Groupe I", "eqA": "🇫🇷 France", "eqB": "🇸🇳 Sénégal", "scA": None, "scB": None},
     {"id": 15, "date": "2026-06-20", "heure": "00h", "groupe": "Groupe C", "eqA": "🇧🇷 Brésil", "eqB": "🇭🇹 Haïti", "scA": None, "scB": None},
     {"id": 16, "date": "2026-06-20", "heure": "00h", "groupe": "Groupe C", "eqA": "🇲🇦 Maroc", "eqB": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", "scA": None, "scB": None},
     {"id": 27, "date": "2026-06-20", "heure": "19h", "groupe": "Groupe E", "eqA": "🇩🇪 Allemagne", "eqB": "🇨🇮 Côte d'Ivoire", "scA": None, "scB": None},
@@ -219,7 +219,6 @@ def calculer_points(prono_a, prono_b, reel_a, reel_b, eqA="", eqB=""):
         if pa == ra and pb == rb:
             points += 2
             
-    # Si la France joue (A ou B), on double le total des points obtenus sur le match
     if "France" in eqA or "France" in eqB:
         points = points * 2
         
@@ -303,7 +302,6 @@ with st.sidebar:
                     pari = pronos_j[pronos_j.Match_ID == m['id']]
                     if not pari.empty and m['scA'] is not None:
                         try:
-                            # Ajout des arguments eqA et eqB pour le calcul double de la France
                             pts += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'], m['eqA'], m['eqB'])
                         except: pass
                 scores_live[j] = pts
@@ -421,9 +419,13 @@ with tab2:
         cols = st.columns(2)
         for i, m in enumerate(matchs_du_jour):
             with cols[i % 2]:
-                # 👇 C'EST ICI : Affichage en vert si le match a un score 👇
                 if m['scA'] is not None and m['scB'] is not None:
-                    st.success(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n✅ **Terminé**")
+                    # 👇 MODIFICATION "EN COURS" ICI 👇
+                    statut = m.get("statut", "terminé")
+                    if statut.lower() == "en cours":
+                        st.warning(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n🔥 **En cours**")
+                    else:
+                        st.success(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n✅ **Terminé**")
                 else:
                     with st.container(border=True):
                         st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
@@ -505,9 +507,13 @@ with tab5:
                 st.caption(f"Matchs du {grp}")
                 matchs_grp = [m for m in MATCHS if m['groupe'] == grp]
                 for m in matchs_grp:
-                    # 👇 C'EST ICI : Les petits scores passent en vert aussi 👇
                     if m['scA'] is not None:
-                        st.success(f"{m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}")
+                        # 👇 MODIFICATION "EN COURS" ICI 👇
+                        statut = m.get("statut", "terminé")
+                        if statut.lower() == "en cours":
+                            st.warning(f"🔥 {m['eqA']} **{m['scA']}-{m['scB']}** {m['eqB']}")
+                        else:
+                            st.success(f"{m['eqA']} **{m['scA']}-{m['scB']}** {m['eqB']}")
                     else:
                         st.write(f"⏳ {m['eqA']} vs {m['eqB']}")
 
