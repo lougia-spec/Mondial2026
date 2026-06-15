@@ -413,13 +413,13 @@ with tab2:
         st.markdown(f"##### 🗓️ {formater_date(d)}")
         matchs_du_jour = [m for m in MATCHS if m['date'] == d]
         cols = st.columns(2)
-        for i, m in enumerate(matchs_du_jour):
+for i, m in enumerate(matchs_du_jour):
             with cols[i % 2]:
-                with st.container(border=True):
-                    if m['scA'] is not None and m['scB'] is not None:
-                        st.markdown(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}")
-                        st.caption("✅ Terminé")
-                    else:
+                # 👇 C'EST ICI : Affichage en vert si le match a un score 👇
+                if m['scA'] is not None and m['scB'] is not None:
+                    st.success(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n✅ **Terminé**")
+                else:
+                    with st.container(border=True):
                         st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
                         st.caption(f"🕒 {m['heure']} - {m['groupe']}")
 
