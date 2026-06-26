@@ -500,6 +500,8 @@ with tab4:
         col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
         if col_nom in df.columns:
             joueurs = df[col_nom].unique()
+            
+            # --- 1. CALCUL DU CLASSEMENT ACTUEL ---
             for j in joueurs:
                 pts = 0
                 pronos_j = df[df[col_nom] == j]
@@ -516,6 +518,42 @@ with tab4:
                 df_rank = df_rank.sort_values(by="Points", ascending=False).reset_index(drop=True)
                 df_rank.index += 1
                 st.dataframe(df_rank, use_container_width=True, height=600)
+                
+                st.markdown("---")
+                st.write("### 📈 La Course aux Points (Évolution)")
+                
+                # --- 2. CALCUL POUR LE GRAPHIQUE D'ÉVOLUTION ---
+                # On ne prend que les matchs qui ont un score
+                matchs_joues = [m for m in MATCHS if m['scA'] is not None and m['scB'] is not None]
+                matchs_joues.sort(key=lambda x: x['date']) # Tri chronologique
+                dates_jouees = sorted(list(set(m['date'] for m in matchs_joues)))
+                
+                if dates_jouees:
+                    historique = {j: [0] for j in joueurs} # Tout le monde part à 0
+                    labels_x = ["Départ"]
+                    cumul = {j: 0 for j in joueurs}
+                    
+                    for d in dates_jouees:
+                        labels_x.append(formater_date(d)) # Ajoute le jour (ex: Lundi 15 Juin)
+                        matchs_jour = [m for m in matchs_joues if m['date'] == d]
+                        
+                        for j in joueurs:
+                            pronos_j = df[df[col_nom] == j]
+                            pts_jour = 0
+                            for m in matchs_jour:
+                                pari = pronos_j[pronos_j.Match_ID == m['id']]
+                                if not pari.empty:
+                                    try:
+                                        pts_jour += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'], m['eqA'], m['eqB'])
+                                    except: pass
+                            cumul[j] += pts_jour # On ajoute les points du jour au total
+                            historique[j].append(cumul[j])
+                            
+                    # Création et affichage du graphique
+                    df_chart = pd.DataFrame(historique, index=labels_x)
+                    st.line_chart(df_chart, height=450)
+                else:
+                    st.info("Le graphique s'affichera dès que le premier match sera terminé !")
 
 with tab5:
     st.header("🌍 Classement des Groupes")
