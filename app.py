@@ -523,20 +523,21 @@ with tab4:
                 st.write("### 📈 La Course aux Points (Évolution)")
                 
                 # --- 2. CALCUL POUR LE GRAPHIQUE D'ÉVOLUTION ---
-                # On ne prend que les matchs qui ont un score
                 matchs_joues = [m for m in MATCHS if m['scA'] is not None and m['scB'] is not None]
                 matchs_joues.sort(key=lambda x: x['date']) # Tri chronologique
                 dates_jouees = sorted(list(set(m['date'] for m in matchs_joues)))
                 
                 if dates_jouees:
                     historique = {j: [0] for j in joueurs} # Tout le monde part à 0
-                    labels_x = ["Départ"]
+                    labels_x = ["00 - Départ"]
                     cumul = {j: 0 for j in joueurs}
                     
-                    for d in dates_jouees:
-                        labels_x.append(formater_date(d)) # Ajoute le jour (ex: Lundi 15 Juin)
-                        matchs_jour = [m for m in matchs_joues if m['date'] == d]
+                    # On ajoute un numéro 01, 02, 03... pour forcer le bon ordre !
+                    for index, d in enumerate(dates_jouees):
+                        jour_num = str(index + 1).zfill(2) 
+                        labels_x.append(f"{jour_num} - {formater_date(d)}")
                         
+                        matchs_jour = [m for m in matchs_joues if m['date'] == d]
                         for j in joueurs:
                             pronos_j = df[df[col_nom] == j]
                             pts_jour = 0
@@ -546,7 +547,7 @@ with tab4:
                                     try:
                                         pts_jour += calculer_points(pari.iloc[0]['Prono_A'], pari.iloc[0]['Prono_B'], m['scA'], m['scB'], m['eqA'], m['eqB'])
                                     except: pass
-                            cumul[j] += pts_jour # On ajoute les points du jour au total
+                            cumul[j] += pts_jour 
                             historique[j].append(cumul[j])
                             
                     # Création et affichage du graphique
