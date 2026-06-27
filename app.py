@@ -31,7 +31,7 @@ fond_ecran = """
 st.markdown(fond_ecran, unsafe_allow_html=True)
 
 # --- ZONE D'ADMINISTRATION ---
-PRONOS_OUVERTS = False  
+PRONOS_OUVERTS = True  # Ouvert pour les 16èmes !
 DERNIERE_MAJ = "Automatique via Google Sheets 📱"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
@@ -344,18 +344,19 @@ with st.sidebar:
 
 st.title("🏆 Faites vos Jeux !")
 
-# 👇 L'ORDRE DES ONGLETS A ÉTÉ MODIFIÉ ICI 👇
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+# 👇 NOUVEL ONGLET "TABLEAU FINAL" AJOUTÉ ICI 👇
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "📢 Résultats & Calendrier", 
     "📝 Pronostics", 
     "📜 Règlement", 
     "📊 Classement", 
     "🌍 Groupes", 
     "👀 Mes Paris", 
-    "🔎 Pronos par Match"
+    "🔎 Pronos par Match",
+    "🌳 Phase Finale"
 ])
 
-with tab1: # ANCIENNEMENT TAB2 (RÉSULTATS)
+with tab1: 
     st.header("📢 Résultats & Calendrier")
     dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
     for d in dates_uniques:
@@ -375,9 +376,9 @@ with tab1: # ANCIENNEMENT TAB2 (RÉSULTATS)
                         st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
                         st.caption(f"🕒 {m['heure']} - {m['groupe']}")
 
-with tab2: # ANCIENNEMENT TAB1 (PRONOSTICS)
+with tab2:
     if PRONOS_OUVERTS:
-        st.write("### 📅 Le Calendrier")
+        st.write("### 🏆 Pronostics - Phase Finale")
         try:
             if "google_ok" not in st.session_state:
                 connect_to_gsheets()
@@ -386,73 +387,79 @@ with tab2: # ANCIENNEMENT TAB1 (PRONOSTICS)
             st.error(f"⚠️ Erreur: {e}")
         
         df_stats = charger_donnees()
+        
+        noms_inscrits = []
+        if not df_stats.empty:
+            col_nom = "Nom et Prénom" if "Nom et Prénom" in df_stats.columns else "Pseudo"
+            if col_nom in df_stats.columns:
+                noms_inscrits = sorted(df_stats[col_nom].astype(str).unique().tolist())
 
-        with st.form("grille_pronos"):
+        with st.form("grille_pronos_finale"):
+            st.info("💡 **Procédure simplifiée :** Sélectionne ton nom dans la liste et confirme ton email pour débloquer ta grille. Tu ne pronostiques ici QUE la phase finale !")
+            
             col_p, col_e = st.columns(2)
-            nom_prenom = col_p.text_input("Ton Nom et Prénom (Obligatoire) :")
-            email = col_e.text_input("Ton Email (Pour les résultats) :")
+            nom_prenom = col_p.selectbox("Ton Nom et Prénom :", ["-- Clique ici pour choisir --"] + noms_inscrits)
+            email = col_e.text_input("Ton Email (Sécurité) :")
 
             saisies = {}
-            matchs_tries = sorted(MATCHS, key=lambda x: x['date'])
-            dates_uniques = sorted(list(set(m['date'] for m in matchs_tries)))
+            matchs_phase_finale = [m for m in MATCHS if int(m['id']) > 72]
+            
+            if not matchs_phase_finale:
+                st.warning("⏳ Les matchs de la phase finale n'ont pas encore été ajoutés par l'administrateur.")
+            else:
+                matchs_tries = sorted(matchs_phase_finale, key=lambda x: x['date'])
+                dates_uniques = sorted(list(set(m['date'] for m in matchs_tries)))
 
-            for d in dates_uniques:
-                st.markdown(f"### 🗓️ {formater_date(d)}")
-                matchs_du_jour = [m for m in matchs_tries if m['date'] == d]
-                cols = st.columns(2)
-                for i, m in enumerate(matchs_du_jour):
-                    with cols[i % 2]:
-                        with st.container(border=True):
-                            stats = calculer_tendance(m['id'], df_stats)
-                            if stats:
-                                st.caption(f"📊 Tendance : {m['eqA']} {stats['A']}% - Nul {stats['N']}% - {m['eqB']} {stats['B']}%")
-                            else:
-                                st.caption(f"🕑 {m['heure']} - {m['groupe']}")
-                            
-                            st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
-                            c1, c2 = st.columns(2)
-                            pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
-                            pb = c2.number_input(f"{m['eqB']}", 0, 10, key=f"B_{m['id']}")
-                            saisies[m['id']] = (pa, pb)
-                st.divider()
+                for d in dates_uniques:
+                    st.markdown(f"### 🗓️ {formater_date(d)}")
+                    matchs_du_jour = [m for m in matchs_tries if m['date'] == d]
+                    cols = st.columns(2)
+                    for i, m in enumerate(matchs_du_jour):
+                        with cols[i % 2]:
+                            with st.container(border=True):
+                                stats = calculer_tendance(m['id'], df_stats)
+                                if stats:
+                                    st.caption(f"📊 Tendance : {m['eqA']} {stats['A']}% - Nul {stats['N']}% - {m['eqB']} {stats['B']}%")
+                                else:
+                                    st.caption(f"🕑 {m['heure']} - {m['groupe']}")
+                                
+                                st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
+                                c1, c2 = st.columns(2)
+                                pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
+                                pb = c2.number_input(f"{m['eqB']}", 0, 10, key=f"B_{m['id']}")
+                                saisies[m['id']] = (pa, pb)
+                    st.divider()
             
             st.write("")
-            valider = st.form_submit_button("Valider et Enregistrer", use_container_width=True)
+            valider = st.form_submit_button("Valider mes pronostics", use_container_width=True)
         
         if valider:
-            if not nom_prenom or not email:
-                st.error("⚠️ Il faut ton Nom/Prénom ET un email !")
+            if nom_prenom == "-- Clique ici pour choisir --" or not email:
+                st.error("⚠️ Il faut sélectionner ton Nom/Prénom ET confirmer ton email !")
             else:
                 df = charger_donnees()
                 col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
-                noms_existants = []
-                if not df.empty and col_nom in df.columns:
-                    noms_existants = df[col_nom].astype(str).values 
                 
-                if nom_prenom in noms_existants:
-                    st.warning(f"Attention, {nom_prenom} a déjà joué ! Modifie le nom si c'est un homonyme.")
+                deja_joue_phase_finale = False
+                if not df.empty and col_nom in df.columns:
+                    pronos_joueur = df[df[col_nom] == nom_prenom]
+                    if not pronos_joueur.empty and "Match_ID" in pronos_joueur.columns:
+                        if any(pd.to_numeric(pronos_joueur["Match_ID"], errors='coerce') > 72):
+                            deja_joue_phase_finale = True
+
+                if deja_joue_phase_finale:
+                    st.warning(f"Attention {nom_prenom}, tu as déjà validé tes pronostics pour la phase finale !")
                 else:
-                    with st.spinner("Envoi..."):
+                    with st.spinner("Enregistrement en cours..."):
                         liste_a_envoyer = []
                         for mid, (sa, sb) in saisies.items():
                             liste_a_envoyer.append((mid, sa, sb))
                         sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                     
-                    st.success(f"✅ C'est enregistré {nom_prenom} !")
-                    st.markdown("---")
-                    
-                    st.success("📲 **DERNIÈRES ÉTAPES IMPORTANTES :**")
-                    col_btn1, col_btn2 = st.columns(2)
-                    
-                    with col_btn1:
-                        st.link_button("1️⃣ Payer ma participation (5€) 💳", LIEN_CAGNOTTE, use_container_width=True)
-                    
-                    with col_btn2:
-                        st.link_button("2️⃣ Rejoindre le groupe WhatsApp 💬", LIEN_WHATSAPP, use_container_width=True)
-                        
+                    st.success(f"✅ Tes pronostics sont enregistrés, {nom_prenom} !")
                     st.balloons()
     else:
-        st.error("⛔️ Les pronostics sont fermés ! La compétition a commencé.")
+        st.error("⛔️ Les pronostics sont temporairement fermés.")
         st.info("Tu peux toujours consulter ton classement et les résultats dans les autres onglets.")
 
 with tab3:
@@ -483,11 +490,6 @@ with tab3:
     * 🥉 **3ème place** : 10 % de la cagnotte totale.
 
     En cas d'égalité, les gains du rang concerné seront partagés équitablement entre les ex-aequo.
-    
-    ---
-    ### ⚠️ Autres règles
-    * **IMPORTANT :** La totalité de la grille de poules (72 matchs) doit être remplie et validée **impérativement avant le coup d'envoi du premier match** de la Coupe du Monde. Toute grille incomplète ou en retard ne sera pas prise en compte.
-    * En cas d'égalité de points à la fin de la compétition, le nombre de "Scores Exacts" départagera les joueurs.
     """)
 
 with tab4:
@@ -501,7 +503,6 @@ with tab4:
         if col_nom in df.columns:
             joueurs = df[col_nom].unique()
             
-            # --- 1. CALCUL DU CLASSEMENT ACTUEL ---
             for j in joueurs:
                 pts = 0
                 pronos_j = df[df[col_nom] == j]
@@ -522,17 +523,15 @@ with tab4:
                 st.markdown("---")
                 st.write("### 📈 La Course aux Points (Évolution)")
                 
-                # --- 2. CALCUL POUR LE GRAPHIQUE D'ÉVOLUTION ---
                 matchs_joues = [m for m in MATCHS if m['scA'] is not None and m['scB'] is not None]
-                matchs_joues.sort(key=lambda x: x['date']) # Tri chronologique
+                matchs_joues.sort(key=lambda x: x['date']) 
                 dates_jouees = sorted(list(set(m['date'] for m in matchs_joues)))
                 
                 if dates_jouees:
-                    historique = {j: [0] for j in joueurs} # Tout le monde part à 0
+                    historique = {j: [0] for j in joueurs} 
                     labels_x = ["00 - Départ"]
                     cumul = {j: 0 for j in joueurs}
                     
-                    # On ajoute un numéro 01, 02, 03... pour forcer le bon ordre !
                     for index, d in enumerate(dates_jouees):
                         jour_num = str(index + 1).zfill(2) 
                         labels_x.append(f"{jour_num} - {formater_date(d)}")
@@ -550,7 +549,6 @@ with tab4:
                             cumul[j] += pts_jour 
                             historique[j].append(cumul[j])
                             
-                    # Création et affichage du graphique
                     df_chart = pd.DataFrame(historique, index=labels_x)
                     st.line_chart(df_chart, height=450)
                 else:
@@ -558,7 +556,7 @@ with tab4:
 
 with tab5:
     st.header("🌍 Classement des Groupes")
-    groupes = sorted(list(set(m['groupe'] for m in MATCHS)))
+    groupes = sorted(list(set(m['groupe'] for m in MATCHS if "groupe" in m['groupe'].lower())))
     cols = st.columns(2)
     for i, grp in enumerate(groupes):
         with cols[i % 2]: 
@@ -654,3 +652,35 @@ with tab7:
             
             df_affichage = df_affichage.sort_values(by="Joueur").reset_index(drop=True)
             st.dataframe(df_affichage, use_container_width=True)
+
+# 👇 ONGLETS "PHASE FINALE" 👇
+with tab8:
+    st.header("🌳 Phase Finale")
+    st.markdown("Suivez l'évolution des éliminations directes !")
+
+    matchs_finale = [m for m in MATCHS if int(m.get('id', 0)) > 72]
+
+    if not matchs_finale:
+        st.info("⏳ Les affiches de la phase finale n'ont pas encore été définies. Le tableau apparaîtra ici une fois complété par l'administrateur.")
+    else:
+        ordre_phases = ["16ème", "8ème", "Quart", "Demi", "Finale"]
+        
+        for phase in ordre_phases:
+            matchs_phase = [m for m in matchs_finale if phase.lower() in str(m.get('groupe', '')).lower()]
+            
+            if matchs_phase:
+                st.markdown(f"### 🏆 {phase}s de finale" if phase != "Finale" else f"### 🏆 {phase}")
+                cols = st.columns(2)
+                for i, m in enumerate(matchs_phase):
+                    with cols[i % 2]:
+                        if m['scA'] is not None and m['scB'] is not None:
+                            statut = m.get("statut", "terminé")
+                            if statut.lower() == "en cours":
+                                st.warning(f"🔥 {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}")
+                            else:
+                                st.success(f"✅ {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}")
+                        else:
+                            with st.container(border=True):
+                                st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
+                                st.caption(f"🗓️ {formater_date(m['date'])} - 🕒 {m['heure']}")
+                st.divider()
