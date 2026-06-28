@@ -431,7 +431,7 @@ with tab2:
                     st.divider()
             
             st.write("")
-           valider = st.form_submit_button("Valider mes pronostics", use_container_width=True)
+            valider = st.form_submit_button("Valider mes pronostics", use_container_width=True)
         
         if valider:
             if nom_prenom == "-- Clique ici pour choisir --" or not email:
