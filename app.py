@@ -431,37 +431,24 @@ with tab2:
                     st.divider()
             
             st.write("")
-            valider = st.form_submit_button("Valider mes pronostics", use_container_width=True)
+           valider = st.form_submit_button("Valider mes pronostics", use_container_width=True)
         
         if valider:
             if nom_prenom == "-- Clique ici pour choisir --" or not email:
                 st.error("⚠️ Il faut sélectionner ton Nom/Prénom ET confirmer ton email !")
             else:
-                df = charger_donnees()
-                col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
+                # 🛑 SÉCURITÉ DÉSACTIVÉE : ON FORCE L'ENREGISTREMENT 🛑
+                with st.spinner("Enregistrement en cours (mode forcé)..."):
+                    liste_a_envoyer = []
+                    for mid, (sa, sb) in saisies.items():
+                        liste_a_envoyer.append((mid, sa, sb))
+                    sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                 
-                deja_joue_phase_finale = False
-                if not df.empty and col_nom in df.columns:
-                    pronos_joueur = df[df[col_nom] == nom_prenom]
-                    if not pronos_joueur.empty and "Match_ID" in pronos_joueur.columns:
-                        if any(pd.to_numeric(pronos_joueur["Match_ID"], errors='coerce') > 72):
-                            deja_joue_phase_finale = True
-
-                if deja_joue_phase_finale:
-                    st.warning(f"Attention {nom_prenom}, tu as déjà validé tes pronostics pour la phase finale !")
-                else:
-                    with st.spinner("Enregistrement en cours..."):
-                        liste_a_envoyer = []
-                        for mid, (sa, sb) in saisies.items():
-                            liste_a_envoyer.append((mid, sa, sb))
-                        sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
-                    
-                    st.success(f"✅ Tes pronostics sont enregistrés, {nom_prenom} !")
-                    st.balloons()
+                st.success(f"✅ BINGO ! Tes pronostics ont été envoyés de force, {nom_prenom} !")
+                st.balloons()
     else:
         st.error("⛔️ Les pronostics sont temporairement fermés.")
         st.info("Tu peux toujours consulter ton classement et les résultats dans les autres onglets.")
-
 with tab3:
     st.header("📜 Règlement du Concours")
     st.markdown("""
