@@ -378,7 +378,7 @@ with tab1:
 
 with tab2:
     if PRONOS_OUVERTS:
-        st.write("### 🏆 Pronostics - Phase Finale")
+        st.write("### 🏆 Pronostics - 16èmes de finale")
         try:
             if "google_ok" not in st.session_state:
                 connect_to_gsheets()
@@ -395,17 +395,18 @@ with tab2:
                 noms_inscrits = sorted(df_stats[col_nom].astype(str).unique().tolist())
 
         with st.form("grille_pronos_finale"):
-            st.info("💡 **Procédure simplifiée :** Sélectionne ton nom dans la liste et confirme ton email pour débloquer ta grille. Tu ne pronostiques ici QUE la phase finale !")
+            st.info("💡 **Procédure simplifiée :** Sélectionne ton nom dans la liste et confirme ton email pour débloquer ta grille.")
             
             col_p, col_e = st.columns(2)
             nom_prenom = col_p.selectbox("Ton Nom et Prénom :", ["-- Clique ici pour choisir --"] + noms_inscrits)
             email = col_e.text_input("Ton Email (Sécurité) :")
 
             saisies = {}
-            matchs_phase_finale = [m for m in MATCHS if int(m['id']) > 72]
+            # 👇 LE NOUVEAU FILTRE : On garde uniquement les matchs avec "16" dans le nom du groupe 👇
+            matchs_phase_finale = [m for m in MATCHS if "16" in str(m.get('groupe', ''))]
             
             if not matchs_phase_finale:
-                st.warning("⏳ Les matchs de la phase finale n'ont pas encore été ajoutés par l'administrateur.")
+                st.warning("⏳ Les 16èmes de finale n'ont pas encore été ajoutés.")
             else:
                 matchs_tries = sorted(matchs_phase_finale, key=lambda x: x['date'])
                 dates_uniques = sorted(list(set(m['date'] for m in matchs_tries)))
@@ -431,20 +432,20 @@ with tab2:
                     st.divider()
             
             st.write("")
-            valider = st.form_submit_button("Valider mes pronostics", use_container_width=True)
+            valider = st.form_submit_button("Valider mes 16èmes de finale", use_container_width=True)
         
         if valider:
             if nom_prenom == "-- Clique ici pour choisir --" or not email:
                 st.error("⚠️ Il faut sélectionner ton Nom/Prénom ET confirmer ton email !")
             else:
                 # 🛑 SÉCURITÉ DÉSACTIVÉE : ON FORCE L'ENREGISTREMENT 🛑
-                with st.spinner("Enregistrement en cours (mode forcé)..."):
+                with st.spinner("Enregistrement en cours..."):
                     liste_a_envoyer = []
                     for mid, (sa, sb) in saisies.items():
                         liste_a_envoyer.append((mid, sa, sb))
                     sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                 
-                st.success(f"✅ BINGO ! Tes pronostics ont été envoyés de force, {nom_prenom} !")
+                st.success(f"✅ Tes pronostics pour les 16èmes ont bien été enregistrés, {nom_prenom} !")
                 st.balloons()
     else:
         st.error("⛔️ Les pronostics sont temporairement fermés.")
