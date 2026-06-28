@@ -609,38 +609,44 @@ with tab7:
     if df.empty:
         st.info("Personne n'a encore parié. Reviens plus tard ! 😊")
     else:
-        options_matchs = []
-        for m in MATCHS:
-            date_belle = formater_date(m['date'])
-            options_matchs.append(f"{m['eqA']} vs {m['eqB']} ({date_belle})")
+        # 👇 FILTRE : On ne garde que les matchs non joués OU les matchs en cours 👇
+        matchs_filtrés = [m for m in MATCHS if m['scA'] is None or str(m.get('statut', '')).lower() == "en cours"]
         
-        choix = st.selectbox("Sélectionne un match pour voir les paris :", options_matchs)
-        
-        index_choix = options_matchs.index(choix)
-        match_select = MATCHS[index_choix]
-        
-        df_filtre = df[df['Match_ID'] == match_select['id']]
-        
-        if df_filtre.empty:
-            st.warning("Aucun joueur n'a encore pronostiqué ce match.")
+        if not matchs_filtrés:
+            st.success("🎉 Tous les matchs du tournoi ont été joués et saisis !")
         else:
-            col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
+            options_matchs = []
+            for m in matchs_filtrés:
+                date_belle = formater_date(m['date'])
+                # On ajoute un petit indicateur visuel si le match est en cours de jeu
+                prefixe = "🔥 [EN COURS] " if str(m.get('statut', '')).lower() == "en cours" else ""
+                options_matchs.append(f"{prefixe}{m['eqA']} vs {m['eqB']} ({date_belle})")
             
-            stats = calculer_tendance(match_select['id'], df)
-            if stats:
-                st.info(f"📊 **Tendance de la communauté :** Victoire {match_select['eqA']} **{stats['A']}%** | Nul **{stats['N']}%** | Victoire {match_select['eqB']} **{stats['B']}%**")
+            choix = st.selectbox("Sélectionne un match pour voir les paris :", options_matchs)
             
-            df_affichage = df_filtre[[col_nom, 'Prono_A', 'Prono_B']].copy()
-            df_affichage = df_affichage.rename(columns={
-                col_nom: "Joueur", 
-                "Prono_A": f"Score {match_select['eqA']}", 
-                "Prono_B": f"Score {match_select['eqB']}"
-            })
+            index_choix = options_matchs.index(choix)
+            match_select = matchs_filtrés[index_choix] # On utilise bien la liste filtrée ici
             
-            df_affichage = df_affichage.sort_values(by="Joueur").reset_index(drop=True)
-            st.dataframe(df_affichage, use_container_width=True)
-
-# 👇 ONGLETS "PHASE FINALE" 👇
+            df_filtre = df[df['Match_ID'] == match_select['id']]
+            
+            if df_filtre.empty:
+                st.warning("Aucun joueur n'a encore pronostiqué ce match.")
+            else:
+                col_nom = "Nom et Prénom" if "Nom et Prénom" in df.columns else "Pseudo"
+                
+                stats = calculer_tendance(match_select['id'], df)
+                if stats:
+                    st.info(f"📊 **Tendance de la communauté :** Victoire {match_select['eqA']} **{stats['A']}%** | Nul **{stats['N']}%** | Victoire {match_select['eqB']} **{stats['B']}%**")
+                
+                df_affichage = df_filtre[[col_nom, 'Prono_A', 'Prono_B']].copy()
+                df_affichage = df_affichage.rename(columns={
+                    col_nom: "Joueur", 
+                    "Prono_A": f"Score {match_select['eqA']}", 
+                    "Prono_B": f"Score {match_select['eqB']}"
+                })
+                
+                df_affichage = df_affichage.sort_values(by="Joueur").reset_index(drop=True)
+                st.dataframe(df_affichage, use_container_width=True)
 with tab8:
     st.header("🌳 Phase Finale")
     st.markdown("Suivez l'évolution des éliminations directes !")
