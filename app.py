@@ -357,24 +357,31 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
 ])
 
 with tab1: 
-    st.header("📢 Résultats & Calendrier")
-    dates_uniques = sorted(list(set(m['date'] for m in MATCHS)))
-    for d in dates_uniques:
-        st.markdown(f"##### 🗓️ {formater_date(d)}")
-        matchs_du_jour = [m for m in MATCHS if m['date'] == d]
-        cols = st.columns(2)
-        for i, m in enumerate(matchs_du_jour):
-            with cols[i % 2]:
-                if m['scA'] is not None and m['scB'] is not None:
-                    statut = m.get("statut", "terminé")
-                    if statut.lower() == "en cours":
-                        st.warning(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n🔥 **En cours**")
+    st.header("📢 Résultats & Calendrier (Phase Finale)")
+    
+    # 👇 FILTRE : On ne garde que les matchs après les poules (ID > 72) 👇
+    matchs_phase_finale = [m for m in MATCHS if int(m.get('id', 0)) > 72]
+    
+    if not matchs_phase_finale:
+        st.info("⏳ Le calendrier de la phase finale est en cours de préparation.")
+    else:
+        dates_uniques = sorted(list(set(m['date'] for m in matchs_phase_finale)))
+        for d in dates_uniques:
+            st.markdown(f"##### 🗓️ {formater_date(d)}")
+            matchs_du_jour = [m for m in matchs_phase_finale if m['date'] == d]
+            cols = st.columns(2)
+            for i, m in enumerate(matchs_du_jour):
+                with cols[i % 2]:
+                    if m['scA'] is not None and m['scB'] is not None:
+                        statut = m.get("statut", "terminé")
+                        if statut.lower() == "en cours":
+                            st.warning(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n🔥 **En cours**")
+                        else:
+                            st.success(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n✅ **Terminé**")
                     else:
-                        st.success(f"### {m['eqA']} **{m['scA']} - {m['scB']}** {m['eqB']}\n✅ **Terminé**")
-                else:
-                    with st.container(border=True):
-                        st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
-                        st.caption(f"🕒 {m['heure']} - {m['groupe']}")
+                        with st.container(border=True):
+                            st.write(f"**{m['eqA']}** vs **{m['eqB']}**")
+                            st.caption(f"🕒 {m['heure']} - {m['groupe']}")
 
 with tab2:
     if PRONOS_OUVERTS:
