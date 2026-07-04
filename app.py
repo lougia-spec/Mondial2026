@@ -385,7 +385,7 @@ with tab1:
 
 with tab2:
     if PRONOS_OUVERTS:
-        st.write("### 🏆 Pronostics - 16èmes de finale")
+        st.write("### 🏆 Pronostics - 8èmes de finale")
         try:
             if "google_ok" not in st.session_state:
                 connect_to_gsheets()
@@ -409,11 +409,11 @@ with tab2:
             email = col_e.text_input("Ton Email (Sécurité) :")
 
             saisies = {}
-            # 👇 LE NOUVEAU FILTRE : On garde uniquement les matchs avec "16" dans le nom du groupe 👇
-            matchs_phase_finale = [m for m in MATCHS if "16" in str(m.get('groupe', ''))]
+            # 👇 LE NOUVEAU FILTRE : On garde uniquement les matchs avec "8" dans le nom du groupe 👇
+            matchs_phase_finale = [m for m in MATCHS if "8" in str(m.get('groupe', ''))]
             
             if not matchs_phase_finale:
-                st.warning("⏳ Les 16èmes de finale n'ont pas encore été ajoutés.")
+                st.warning("⏳ Les 8èmes de finale n'ont pas encore été ajoutés par l'administrateur.")
             else:
                 matchs_tries = sorted(matchs_phase_finale, key=lambda x: x['date'])
                 dates_uniques = sorted(list(set(m['date'] for m in matchs_tries)))
@@ -439,20 +439,19 @@ with tab2:
                     st.divider()
             
             st.write("")
-            valider = st.form_submit_button("Valider mes 16èmes de finale", use_container_width=True)
+            valider = st.form_submit_button("Valider mes 8èmes de finale", use_container_width=True)
         
         if valider:
             if nom_prenom == "-- Clique ici pour choisir --" or not email:
                 st.error("⚠️ Il faut sélectionner ton Nom/Prénom ET confirmer ton email !")
             else:
-                # 🛑 SÉCURITÉ DÉSACTIVÉE : ON FORCE L'ENREGISTREMENT 🛑
                 with st.spinner("Enregistrement en cours..."):
                     liste_a_envoyer = []
                     for mid, (sa, sb) in saisies.items():
                         liste_a_envoyer.append((mid, sa, sb))
                     sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                 
-                st.success(f"✅ Tes pronostics pour les 16èmes ont bien été enregistrés, {nom_prenom} !")
+                st.success(f"✅ Tes pronostics pour les 8èmes ont bien été enregistrés, {nom_prenom} !")
                 st.balloons()
     else:
         st.error("⛔️ Les pronostics sont temporairement fermés.")
