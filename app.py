@@ -31,7 +31,7 @@ fond_ecran = """
 st.markdown(fond_ecran, unsafe_allow_html=True)
 
 # --- ZONE D'ADMINISTRATION ---
-PRONOS_OUVERTS = False  # Ouvert pour les 16èmes !
+PRONOS_OUVERTS = True  # Ouvert pour les 8èmes !
 DERNIERE_MAJ = "Automatique via Google Sheets 📱"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
