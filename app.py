@@ -31,7 +31,7 @@ fond_ecran = """
 st.markdown(fond_ecran, unsafe_allow_html=True)
 
 # --- ZONE D'ADMINISTRATION ---
-PRONOS_OUVERTS = True  # Ouvert pour les 8èmes !
+PRONOS_OUVERTS = True  # Ouvert pour les Quarts !
 DERNIERE_MAJ = "Automatique via Google Sheets 📱"
 LIEN_WHATSAPP = "https://chat.whatsapp.com/LOgrgmIAqgy7m9PBpDsaf9?mode=wwt"
 LIEN_CAGNOTTE = "https://paypal.me/mickaelBerault?locale.x=fr_FR&country.x=FR"
@@ -385,7 +385,7 @@ with tab1:
 
 with tab2:
     if PRONOS_OUVERTS:
-        st.write("### 🏆 Pronostics - 8èmes de finale")
+        st.write("### 🏆 Pronostics - Quarts de finale")
         try:
             if "google_ok" not in st.session_state:
                 connect_to_gsheets()
@@ -409,11 +409,11 @@ with tab2:
             email = col_e.text_input("Ton Email (Sécurité) :")
 
             saisies = {}
-            # 👇 LE NOUVEAU FILTRE : On garde uniquement les matchs avec "8" dans le nom du groupe 👇
-            matchs_phase_finale = [m for m in MATCHS if "8" in str(m.get('groupe', ''))]
+            # 👇 LE NOUVEAU FILTRE : On garde uniquement les matchs avec "quart" dans le groupe 👇
+            matchs_phase_finale = [m for m in MATCHS if "quart" in str(m.get('groupe', '')).lower()]
             
             if not matchs_phase_finale:
-                st.warning("⏳ Les 8èmes de finale n'ont pas encore été ajoutés par l'administrateur.")
+                st.warning("⏳ Les quarts de finale n'ont pas encore été ajoutés par l'administrateur.")
             else:
                 matchs_tries = sorted(matchs_phase_finale, key=lambda x: x['date'])
                 dates_uniques = sorted(list(set(m['date'] for m in matchs_tries)))
@@ -439,7 +439,7 @@ with tab2:
                     st.divider()
             
             st.write("")
-            valider = st.form_submit_button("Valider mes 8èmes de finale", use_container_width=True)
+            valider = st.form_submit_button("Valider mes Quarts de finale", use_container_width=True)
         
         if valider:
             if nom_prenom == "-- Clique ici pour choisir --" or not email:
@@ -451,7 +451,7 @@ with tab2:
                         liste_a_envoyer.append((mid, sa, sb))
                     sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                 
-                st.success(f"✅ Tes pronostics pour les 8èmes ont bien été enregistrés, {nom_prenom} !")
+                st.success(f"✅ Tes pronostics pour les Quarts ont bien été enregistrés, {nom_prenom} !")
                 st.balloons()
     else:
         st.error("⛔️ Les pronostics sont temporairement fermés.")
