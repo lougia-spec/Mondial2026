@@ -385,7 +385,7 @@ with tab1:
 
 with tab2:
     if PRONOS_OUVERTS:
-        st.write("### 🏆 Pronostics - Demi-finales")
+        st.write("### 🏆 Pronostics - L'heure de la Finale !")
         try:
             if "google_ok" not in st.session_state:
                 connect_to_gsheets()
@@ -402,18 +402,23 @@ with tab2:
                 noms_inscrits = sorted(df_stats[col_nom].astype(str).unique().tolist())
 
         with st.form("grille_pronos_finale"):
-            st.info("💡 **Procédure simplifiée :** Sélectionne ton nom dans la liste et confirme ton email pour débloquer ta grille.")
+            st.info("💡 **Procédure simplifiée :** Sélectionne ton nom dans la liste et confirme ton email pour débloquer ta grille. Remplis les scores pour la petite et la grande finale !")
             
             col_p, col_e = st.columns(2)
             nom_prenom = col_p.selectbox("Ton Nom et Prénom :", ["-- Clique ici pour choisir --"] + noms_inscrits)
             email = col_e.text_input("Ton Email (Sécurité) :")
 
             saisies = {}
-            # 👇 LE NOUVEAU FILTRE INTELLIGENT : On cherche "demi" OU "1/2" 👇
-            matchs_phase_finale = [m for m in MATCHS if "demi" in str(m.get('groupe', '')).lower() or "1/2" in str(m.get('groupe', ''))]
+            
+            # 👇 LE FILTRE SÉCURISÉ : On cherche exactement "finale" ou on cherche "petite" 👇
+            matchs_phase_finale = []
+            for m in MATCHS:
+                groupe_texte = str(m.get('groupe', '')).lower().strip()
+                if groupe_texte == "finale" or "petite" in groupe_texte or "3ème" in groupe_texte or "3eme" in groupe_texte:
+                    matchs_phase_finale.append(m)
             
             if not matchs_phase_finale:
-                st.warning("⏳ Les demi-finales n'ont pas encore été ajoutées par l'administrateur.")
+                st.warning("⏳ Les matchs finaux n'ont pas encore été ajoutés par l'administrateur.")
             else:
                 matchs_tries = sorted(matchs_phase_finale, key=lambda x: x['date'])
                 dates_uniques = sorted(list(set(m['date'] for m in matchs_tries)))
@@ -439,7 +444,7 @@ with tab2:
                     st.divider()
             
             st.write("")
-            valider = st.form_submit_button("Valider mes Demi-finales", use_container_width=True)
+            valider = st.form_submit_button("Valider mes Finales", use_container_width=True)
         
         if valider:
             if nom_prenom == "-- Clique ici pour choisir --" or not email:
@@ -451,7 +456,7 @@ with tab2:
                         liste_a_envoyer.append((mid, sa, sb))
                     sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                 
-                st.success(f"✅ Tes pronostics pour les Demi-finales ont bien été enregistrés, {nom_prenom} !")
+                st.success(f"✅ Tes pronostics pour les Finales ont bien été enregistrés, {nom_prenom} !")
                 st.balloons()
     else:
         st.error("⛔️ Les pronostics sont temporairement fermés.")
