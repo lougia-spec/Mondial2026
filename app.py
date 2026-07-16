@@ -228,9 +228,19 @@ def calculer_points(prono_a, prono_b, reel_a, reel_b, eqA="", eqB=""):
         ra, rb = int(reel_a), int(reel_b)
     except:
         return 0
+        
+    # 👇 NOUVEAUTÉ : Règle spéciale pour le bonus mi-temps 👇
+    if "Mi-temps" in str(eqA) or "Mi-temps" in str(eqB):
+        if pa == ra and pb == rb:
+            return 1  # 1 seul point pour le score exact à la mi-temps
+        else:
+            return 0  # 0 point si le score de la mi-temps n'est pas le bon
+
+    # --- Calcul classique pour tous les autres matchs ---
     points = 0
     res_reel = 1 if ra > rb else (2 if rb > ra else 0)
     res_prono = 1 if pa > pb else (2 if pb > pa else 0)
+    
     if res_reel == res_prono:
         points += 1
         if pa == ra and pb == rb:
@@ -238,6 +248,7 @@ def calculer_points(prono_a, prono_b, reel_a, reel_b, eqA="", eqB=""):
             
     if "France" in eqA or "France" in eqB:
         points = points * 2
+        
     return points
 
 def calculer_classement_groupe(nom_groupe):
