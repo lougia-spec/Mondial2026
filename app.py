@@ -410,7 +410,6 @@ with tab2:
 
             saisies = {}
             
-            # 👇 LE FILTRE SÉCURISÉ : On cherche exactement "finale" ou on cherche "petite" 👇
             matchs_phase_finale = []
             for m in MATCHS:
                 groupe_texte = str(m.get('groupe', '')).lower().strip()
@@ -438,9 +437,19 @@ with tab2:
                                 
                                 st.markdown(f"**{m['eqA']}** vs **{m['eqB']}**")
                                 c1, c2 = st.columns(2)
-                                pa = c1.number_input(f"{m['eqA']}", 0, 10, key=f"A_{m['id']}")
-                                pb = c2.number_input(f"{m['eqB']}", 0, 10, key=f"B_{m['id']}")
+                                pa = c1.number_input(f"Score {m['eqA']}", 0, 10, key=f"A_{m['id']}")
+                                pb = c2.number_input(f"Score {m['eqB']}", 0, 10, key=f"B_{m['id']}")
                                 saisies[m['id']] = (pa, pb)
+
+                                # 👇 NOUVEAUTÉ : Le bonus mi-temps juste pour la finale 👇
+                                if str(m.get('groupe', '')).lower().strip() == "finale":
+                                    st.divider()
+                                    st.markdown("⏱️ **BONUS : Score à la mi-temps (+1 pt)**")
+                                    c3, c4 = st.columns(2)
+                                    mt_a = c3.number_input(f"Mi-temps {m['eqA']}", 0, 10, key=f"MTA_{m['id']}")
+                                    mt_b = c4.number_input(f"Mi-temps {m['eqB']}", 0, 10, key=f"MTB_{m['id']}")
+                                    # On sauvegarde ce bonus comme un faux match (ID 999)
+                                    saisies["999"] = (mt_a, mt_b) 
                     st.divider()
             
             st.write("")
@@ -456,7 +465,7 @@ with tab2:
                         liste_a_envoyer.append((mid, sa, sb))
                     sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                 
-                st.success(f"✅ Tes pronostics pour les Finales ont bien été enregistrés, {nom_prenom} !")
+                st.success(f"✅ Tes pronostics et ton bonus mi-temps ont bien été enregistrés, {nom_prenom} !")
                 st.balloons()
     else:
         st.error("⛔️ Les pronostics sont temporairement fermés.")
