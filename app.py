@@ -452,14 +452,27 @@ with tab2:
                                 pb = c2.number_input(f"Score {m['eqB']}", 0, 10, key=f"B_{m['id']}")
                                 saisies[m['id']] = (pa, pb)
 
-                                # 👇 NOUVEAUTÉ : Le bonus mi-temps juste pour la finale 👇
-                                if str(m.get('groupe', '')).lower().strip() == "finale":
+                                groupe_match = str(m.get('groupe', '')).lower().strip()
+
+                                # 👇 BONUS PIZZA (Uniquement sous la Petite Finale) 👇
+                                if "petite" in groupe_match or "3ème" in groupe_match or "3eme" in groupe_match:
+                                    st.divider()
+                                    st.markdown("🍕 **BONUS SPÉCIAL : La Pizza du Chef !**")
+                                    st.caption("Trouve le 1er buteur FR et sa minute pour gagner une pizza à la maison ! 😋")
+                                    c_but, c_min = st.columns(2)
+                                    buteur = c_but.text_input("Buteur FR :", key=f"buteur_{m['id']}")
+                                    minute = c_min.number_input("Minute :", 0, 130, key=f"min_{m['id']}")
+                                    # On sauvegarde le bonus Pizza avec l'ID 998
+                                    saisies["998"] = (buteur, minute)
+
+                                # 👇 BONUS MI-TEMPS (Uniquement sous la Grande Finale) 👇
+                                if groupe_match == "finale":
                                     st.divider()
                                     st.markdown("⏱️ **BONUS : Score à la mi-temps (+1 pt)**")
                                     c3, c4 = st.columns(2)
                                     mt_a = c3.number_input(f"Mi-temps {m['eqA']}", 0, 10, key=f"MTA_{m['id']}")
                                     mt_b = c4.number_input(f"Mi-temps {m['eqB']}", 0, 10, key=f"MTB_{m['id']}")
-                                    # On sauvegarde ce bonus comme un faux match (ID 999)
+                                    # On sauvegarde le bonus Mi-temps avec l'ID 999
                                     saisies["999"] = (mt_a, mt_b) 
                     st.divider()
             
@@ -476,7 +489,7 @@ with tab2:
                         liste_a_envoyer.append((mid, sa, sb))
                     sauvegarder_tout(nom_prenom, email, liste_a_envoyer) 
                 
-                st.success(f"✅ Tes pronostics et ton bonus mi-temps ont bien été enregistrés, {nom_prenom} !")
+                st.success(f"✅ Tes pronostics et tes bonus ont bien été enregistrés, {nom_prenom} !")
                 st.balloons()
     else:
         st.error("⛔️ Les pronostics sont temporairement fermés.")
