@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mondial 2026 — vidéo de présentation</title>
+<style>
+:root{
+  --bg1:#06281d; --bg2:#0c4a33; --line:rgba(255,255,255,.07);
+  --gold:#ffd54a; --white:#f6fff9; --mute:#a9d1bd; --red:#ff6b6b; --blue:#5ab0ff; --green:#3ddc84;
+  --card:rgba(255,255,255,.08); --stroke:rgba(255,255,255,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#000}
+body{font-family:"Inter Display","Inter","Noto Color Emoji",sans-serif;color:var(--white)}
+.emo{font-family:"Noto Color Emoji",sans-serif}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;
+  background:radial-gradient(1200px 800px at 50% 40%,var(--bg2),var(--bg1) 75%)}
+
+/* terrain en fond */
+#pitch{position:absolute;inset:-120px;animation:drift 45s linear both}
+#pitch svg{width:100%;height:100%}
+@keyframes drift{from{transform:scale(1.02) rotate(-1.5deg)}to{transform:scale(1.14) rotate(1.5deg)}}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.55))}
+
+/* scènes */
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;animation:sIn .5s ease-out var(--s) both, sOut .4s ease-in calc(var(--e) - .4s) forwards}
+@keyframes sIn{from{opacity:0}to{opacity:1}}
+@keyframes sOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.04)}}
+
+/* animations d'éléments : délai absolu --d */
+.up{animation:up .7s cubic-bezier(.2,.9,.25,1) var(--d) both}
+.pop{animation:pop .6s cubic-bezier(.3,1.6,.5,1) var(--d) both}
+.fade{animation:sIn .6s ease-out var(--d) both}
+.left{animation:left .7s cubic-bezier(.2,.9,.25,1) var(--d) both}
+.right{animation:right .7s cubic-bezier(.2,.9,.25,1) var(--d) both}
+@keyframes up{from{opacity:0;transform:translateY(70px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+@keyframes left{from{opacity:0;transform:translateX(-160px)}to{opacity:1;transform:none}}
+@keyframes right{from{opacity:0;transform:translateX(160px)}to{opacity:1;transform:none}}
+
+.kicker{font-size:34px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--gold)}
+h1{font-size:200px;font-weight:900;letter-spacing:-.03em;line-height:.95;text-align:center}
+h2{font-size:92px;font-weight:900;letter-spacing:-.02em;line-height:1.05;text-align:center}
+.sub{font-size:44px;font-weight:500;color:var(--mute);text-align:center}
+.gold{color:var(--gold)}
+.step{display:inline-flex;align-items:center;justify-content:center;width:84px;height:84px;border-radius:50%;
+  background:var(--gold);color:#0a2d20;font-size:46px;font-weight:900;margin-right:28px;vertical-align:middle}
+.card{background:var(--card);border:2px solid var(--stroke);border-radius:36px;backdrop-filter:blur(6px)}
+
+/* S1 */
+.ball{font-size:170px;animation:ball 1.5s cubic-bezier(.3,0,.5,1) .2s both}
+@keyframes ball{0%{opacity:0;transform:translateY(-700px) rotate(-360deg)}45%{opacity:1;transform:translateY(0) rotate(0)}
+  62%{transform:translateY(-110px) rotate(60deg)}80%{transform:translateY(0) rotate(110deg)}90%{transform:translateY(-28px) rotate(125deg)}100%{transform:translateY(0) rotate(135deg)}}
+.year{display:inline-block;color:var(--gold)}
+.rule{width:0;height:8px;border-radius:4px;background:var(--gold);margin:34px 0;animation:rule .8s ease-out 2.1s both}
+@keyframes rule{from{width:0}to{width:520px}}
+
+/* S2 match */
+.match{display:flex;align-items:center;gap:50px;padding:56px 80px;margin-top:70px}
+.team{display:flex;flex-direction:column;align-items:center;gap:14px;width:330px}
+.team .flag{font-size:170px;line-height:1}
+.team .name{font-size:52px;font-weight:800}
+.score{display:flex;align-items:center;gap:26px}
+.digit{width:170px;height:210px;border-radius:28px;background:#fff;color:#0a2d20;font-size:160px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.dash{font-size:110px;font-weight:900;color:var(--mute)}
+.badge{margin-top:54px;font-size:46px;font-weight:800;padding:22px 52px;border-radius:999px;background:var(--green);color:#063522}
+
+/* S3 barème */
+.cards{display:flex;gap:44px;margin-top:70px}
+.pt{width:520px;padding:50px 40px 44px;text-align:center}
+.pt .n{font-size:210px;font-weight:900;line-height:.9}
+.pt .u{font-size:44px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;margin-top:6px}
+.pt .l{font-size:44px;font-weight:800;margin-top:30px;white-space:nowrap}
+.pt .ex{font-size:34px;color:var(--mute);margin-top:22px;line-height:1.5}
+.pt .ex b{color:var(--white);font-family:"JetBrains Mono",monospace;font-weight:700}
+.pt.g .n,.pt.g .u{color:var(--gold)} .pt.b .n,.pt.b .u{color:var(--blue)} .pt.r .n,.pt.r .u{color:var(--red)}
+
+/* S4 France x2 */
+.fr{display:flex;align-items:center;gap:60px}
+.fr .flag{font-size:300px;line-height:1}
+.x2{font-size:330px;font-weight:900;color:var(--gold);line-height:1;text-shadow:0 14px 50px rgba(255,213,74,.35)}
+.dbl{display:flex;gap:44px;margin-top:50px}
+.dbl .card{padding:34px 56px;font-size:50px;font-weight:700;display:flex;align-items:center;gap:26px}
+.dbl s{color:var(--mute);text-decoration-thickness:5px}
+.dbl b{font-size:76px;font-weight:900;color:var(--gold)}
+
+/* S5 classement */
+#race{position:relative;width:1380px;height:640px;margin-top:50px}
+.row{position:absolute;left:0;right:0;height:68px;display:flex;align-items:center}
+.row .rk{width:70px;font-size:36px;font-weight:900;color:var(--mute);text-align:right;padding-right:22px}
+.row .nm{width:210px;font-size:40px;font-weight:800}
+.row .bar{height:54px;border-radius:14px;background:linear-gradient(90deg,#1f9d63,var(--green))}
+.row.first .bar{background:linear-gradient(90deg,#f0a800,var(--gold))}
+.row .sc{font-size:40px;font-weight:900;padding-left:20px;font-variant-numeric:tabular-nums}
+.day{position:absolute;right:120px;bottom:90px;font-size:54px;font-weight:900;color:rgba(255,255,255,.35);font-variant-numeric:tabular-nums}
+.note{position:absolute;left:120px;bottom:96px;font-size:28px;color:rgba(255,255,255,.4)}
+
+/* S6 onglets */
+.tabs{display:grid;grid-template-columns:repeat(4,400px);gap:32px;margin-top:80px}
+.tab{height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center}
+.tab .i{font-size:84px;line-height:1}
+.tab .t{font-size:36px;font-weight:800;line-height:1.15}
+
+/* S7 podium */
+.podium{display:flex;align-items:flex-end;gap:36px;height:560px;margin-top:40px}
+.col{width:330px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.col .medal{font-size:120px;line-height:1;margin-bottom:16px}
+.col .blk{width:100%;border-radius:26px 26px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:26px;
+  font-size:104px;font-weight:900;color:#0a2d20;transform-origin:bottom;animation:grow .9s cubic-bezier(.2,.9,.25,1) var(--d) both;font-variant-numeric:tabular-nums}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.p1 .blk{height:360px;background:linear-gradient(#ffe27a,#f0b400)}
+.p2 .blk{height:250px;background:linear-gradient(#eef2f5,#b9c4cc)}
+.p3 .blk{height:170px;background:linear-gradient(#f0b58a,#c97b45)}
+
+/* barre de progression */
+#prog{position:absolute;left:0;bottom:0;height:8px;background:var(--gold);width:100%;transform-origin:left;animation:prog 45s linear both}
+@keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="pitch">
+    <svg viewBox="0 0 2160 1320" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6">
+      <rect x="130" y="110" width="1900" height="1100" rx="8"/>
+      <line x1="1080" y1="110" x2="1080" y2="1210"/>
+      <circle cx="1080" cy="660" r="190"/>
+      <circle cx="1080" cy="660" r="8" fill="rgba(255,255,255,.08)"/>
+      <rect x="130" y="330" width="330" height="660"/><rect x="130" y="500" width="120" height="320"/>
+      <rect x="1700" y="330" width="330" height="660"/><rect x="1910" y="500" width="120" height="320"/>
+    </svg>
+  </div>
+  <div class="vignette"></div>
+
+  <!-- S1 : titre -->
+  <section class="scene" style="--s:0s;--e:4.5s">
+    <div class="ball emo">⚽</div>
+    <div class="kicker up" style="--d:1.3s;margin-top:30px">Le concours de pronostics</div>
+    <h1 class="up" style="--d:1.6s;margin-top:18px">MONDIAL <span class="year">2026</span></h1>
+    <div class="rule"></div>
+    <div class="sub up" style="--d:2.5s;font-size:60px;color:var(--white);font-weight:700">Faites vos jeux&nbsp;! <span class="emo">🏆</span></div>
+  </section>
+
+  <!-- S2 : pronostiquer -->
+  <section class="scene" style="--s:4.5s;--e:10.5s">
+    <h2 class="up" style="--d:4.8s"><span class="step">1</span>Pronostique chaque match</h2>
+    <div class="match card pop" style="--d:5.4s">
+      <div class="team left" style="--d:5.8s"><div class="flag emo">🇫🇷</div><div class="name">France</div></div>
+      <div class="score">
+        <div class="digit" id="dA">0</div><div class="dash">–</div><div class="digit" id="dB">0</div>
+      </div>
+      <div class="team right" style="--d:5.8s"><div class="flag emo">🇸🇳</div><div class="name">Sénégal</div></div>
+    </div>
+    <div class="badge pop" style="--d:8.6s">✔ Prono validé</div>
+  </section>
+
+  <!-- S3 : barème -->
+  <section class="scene" style="--s:10.5s;--e:18s">
+    <h2 class="up" style="--d:10.8s"><span class="step">2</span>Marque des points</h2>
+    <div class="cards">
+      <div class="pt g card up" style="--d:11.6s"><div class="n">3</div><div class="u">points</div><div class="l">Score exact <span class="emo">🎯</span></div>
+        <div class="ex">Prono <b>2-1</b><br>Résultat <b>2-1</b></div></div>
+      <div class="pt b card up" style="--d:13.2s"><div class="n">1</div><div class="u">point</div><div class="l">Bon résultat <span class="emo">👍</span></div>
+        <div class="ex">Prono <b>1-0</b><br>Résultat <b>3-0</b></div></div>
+      <div class="pt r card up" style="--d:14.8s"><div class="n">0</div><div class="u">point</div><div class="l">Mauvais résultat <span class="emo">😬</span></div>
+        <div class="ex">Prono <b>2-0</b><br>Résultat <b>0-1</b></div></div>
+    </div>
+  </section>
+
+  <!-- S4 : France compte double -->
+  <section class="scene" style="--s:18s;--e:23.5s">
+    <div class="kicker up" style="--d:18.3s">Règle spéciale <span class="emo">🔥</span></div>
+    <div class="fr" style="margin-top:20px">
+      <div class="flag emo left" style="--d:18.7s">🇫🇷</div>
+      <div class="x2 pop" style="--d:19.4s">×2</div>
+    </div>
+    <h2 class="up" style="--d:20s;font-size:80px">Les matchs des Bleus comptent <span class="gold">double</span></h2>
+    <div class="dbl">
+      <div class="card up" style="--d:20.7s">Score exact <s>3</s> → <b>6 pts</b></div>
+      <div class="card up" style="--d:21.1s">Bon résultat <s>1</s> → <b>2 pts</b></div>
+    </div>
+  </section>
+
+  <!-- S5 : classement -->
+  <section class="scene" style="--s:23.5s;--e:31s">
+    <h2 class="up" style="--d:23.8s"><span class="step">3</span>Grimpe au classement</h2>
+    <div id="race" class="fade" style="--d:24.4s"></div>
+    <div class="note fade" style="--d:24.8s">Noms et scores d'exemple</div>
+    <div class="day fade" style="--d:24.8s" id="day">Journée 1</div>
+  </section>
+
+  <!-- S6 : onglets -->
+  <section class="scene" style="--s:31s;--e:36.5s">
+    <div class="kicker up" style="--d:31.3s">Une seule appli</div>
+    <h2 class="up" style="--d:31.5s;margin-top:16px">Tout le Mondial, en direct</h2>
+    <div class="tabs">
+      <div class="tab card pop" style="--d:32.1s"><div class="i emo">📢</div><div class="t">Résultats &amp; Calendrier</div></div>
+      <div class="tab card pop" style="--d:32.3s"><div class="i emo">📝</div><div class="t">Pronostics</div></div>
+      <div class="tab card pop" style="--d:32.5s"><div class="i emo">📜</div><div class="t">Règlement</div></div>
+      <div class="tab card pop" style="--d:32.7s"><div class="i emo">📊</div><div class="t">Classement</div></div>
+      <div class="tab card pop" style="--d:32.9s"><div class="i emo">🌍</div><div class="t">Groupes</div></div>
+      <div class="tab card pop" style="--d:33.1s"><div class="i emo">👀</div><div class="t">Mes Paris</div></div>
+      <div class="tab card pop" style="--d:33.3s"><div class="i emo">🔎</div><div class="t">Pronos par Match</div></div>
+      <div class="tab card pop" style="--d:33.5s"><div class="i emo">🌳</div><div class="t">Phase Finale</div></div>
+    </div>
+  </section>
+
+  <!-- S7 : cagnotte -->
+  <section class="scene" style="--s:36.5s;--e:41.5s">
+    <h2 class="up" style="--d:36.8s">La cagnotte pour le podium <span class="emo">💰</span></h2>
+    <div class="podium">
+      <div class="col p2"><div class="medal emo pop" style="--d:38.3s">🥈</div><div class="blk" style="--d:37.6s"><span data-count="30" data-start="37.7" data-dur="1" data-suffix=" %">0 %</span></div></div>
+      <div class="col p1"><div class="medal emo pop" style="--d:38.6s">🥇</div><div class="blk" style="--d:37.9s"><span data-count="60" data-start="38" data-dur="1" data-suffix=" %">0 %</span></div></div>
+      <div class="col p3"><div class="medal emo pop" style="--d:38s">🥉</div><div class="blk" style="--d:37.3s"><span data-count="10" data-start="37.4" data-dur="1" data-suffix=" %">0 %</span></div></div>
+    </div>
+  </section>
+
+  <!-- S8 : fin -->
+  <section class="scene" style="--s:41.5s;--e:46s">
+    <div class="emo pop" style="--d:41.8s;font-size:170px">🏆</div>
+    <h1 class="up" style="--d:42.1s;font-size:170px;margin-top:20px">Faites vos <span class="gold">jeux&nbsp;!</span></h1>
+    <div class="kicker up" style="--d:42.7s;margin-top:40px"><span class="emo">⚽</span> Mondial 2026 · Concours de pronostics</div>
+  </section>
+
+  <div id="prog"></div>
+</div>
+
+<script>
+const DURATION = 45;
+const clamp = (x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const easeOut = x=>1-Math.pow(1-x,3);
+
+// --- course au classement (données d'exemple) ---
+const players = [
+  {n:"Léa",f:47,g:1.25},{n:"Hugo",f:44,g:.7},{n:"Inès",f:41,g:1.6},{n:"Tom",f:38,g:.55},
+  {n:"Chloé",f:36,g:1.1},{n:"Malik",f:33,g:.8},{n:"Jules",f:29,g:1.4},{n:"Sarah",f:26,g:.6}
+];
+const race = document.getElementById('race');
+players.forEach(p=>{
+  const r=document.createElement('div'); r.className='row';
+  r.innerHTML=`<div class="rk"></div><div class="nm">${p.n}</div><div class="bar"></div><div class="sc"></div>`;
+  race.appendChild(r); p.el=r;
+});
+function renderRace(t){
+  const p = clamp((t-25)/4.6);            // progression du tournoi
+  const prog = 0.06 + 0.94*p;
+  players.forEach(pl=>pl.s = pl.f*Math.pow(prog,pl.g));
+  const max = Math.max(...players.map(pl=>pl.s));
+  players.forEach(pl=>{
+    // rang continu (transition douce lors des dépassements)
+    let pos=0, rank=1;
+    players.forEach(o=>{ if(o!==pl){ pos += 1/(1+Math.exp(-(o.s-pl.s)/0.15)); if(o.s>pl.s) rank++; } });
+    pl.el.style.transform=`translateY(${pos*80}px)`;
+    pl.el.classList.toggle('first',rank===1);
+    pl.el.children[0].textContent=rank;
+    pl.el.children[2].style.width=(pl.s/max*920)+'px';
+    pl.el.children[3].textContent=Math.round(pl.s)+' pts';
+  });
+  document.getElementById('day').textContent='Journée '+Math.max(1,Math.round(prog*20));
+}
+
+function seek(t){
+  document.getAnimations().forEach(a=>{a.pause();a.currentTime=t*1000});
+  // score saisi
+  document.getElementById('dA').textContent = t<6.8?0:(t<7.3?1:2);
+  document.getElementById('dB').textContent = t<7.9?0:1;
+  // compteurs
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const k=easeOut(clamp((t-+el.dataset.start)/+el.dataset.dur));
+    el.textContent=Math.round(+el.dataset.count*k)+(el.dataset.suffix||'');
+  });
+  renderRace(t);
+}
+window.seek=seek; window.DURATION=DURATION;
+
+// lecture en direct dans le navigateur (ouvrir avec ?play)
+if(location.search.includes('play')){
+  const t0=performance.now();
+  (function loop(){ seek(((performance.now()-t0)/1000)%DURATION); requestAnimationFrame(loop); })();
+}else seek(0);
+</script>
+</body>
+</html>
