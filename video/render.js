@@ -1,5 +1,5 @@
 // Rend video.html image par image puis encode en MP4 avec ffmpeg.
-// Usage : node render.js [sortie.mp4]   (nécessite playwright + ffmpeg)
+// Usage : node render.js [sortie.mp4]   (nécessite playwright, ffmpeg, python3 + numpy)
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
@@ -32,8 +32,11 @@ const out = path.resolve(process.argv[2] || path.join(__dirname, 'mondial2026.mp
     }
   }));
   await browser.close();
-  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(frames, '%05d.jpg'),
-    '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out], { stdio: 'inherit' });
+  const wav = path.join(frames, 'audio.wav');
+  execFileSync('python3', [path.join(__dirname, 'audio.py'), wav], { stdio: 'inherit' });   // bande-son
+  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(frames, '%05d.jpg'), '-i', wav,
+    '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-shortest',
+    '-movflags', '+faststart', out], { stdio: 'inherit' });
   fs.rmSync(frames, { recursive: true, force: true });
   console.log('OK →', out);
 })();
